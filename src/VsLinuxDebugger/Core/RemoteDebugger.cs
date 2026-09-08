@@ -82,8 +82,17 @@ namespace VsLinuxDebugger.Core
           await ssh.MakeDeploymentFolderAsync(_options.RemoteDeployBasePath);
           await ssh.CleanFolderAsync(_launchBuilder.RemoteDeployProjectFolder);
 
+          var hasRemoteService = !string.IsNullOrWhiteSpace(_options.RemoteServiceName);
+
           if (buildOptions.HasFlag(BuildOptions.Deploy))
           {
+            if (hasRemoteService)
+            {
+              // Stop the supervised service so it isn't holding/re-launching the files
+              // we're about to overwrite.
+              await ssh.BashAsync($"sudo /usr/bin/systemctl stop {_options.RemoteServiceName}.service");
+            }
+
             await ssh.UploadFilesAsync(_launchBuilder.OutputDirFullPath, _launchBuilder.RemoteDeployProjectFolder);
 
             if (_options.UseSelfContainedDeployment)
@@ -97,8 +106,16 @@ namespace VsLinuxDebugger.Core
           ////  // This is PUBLISH not our 'deployer'
           ////}
 
+          if (hasRemoteService && (buildOptions.HasFlag(BuildOptions.Launch) || buildOptions.HasFlag(BuildOptions.Debug)))
+          {
+            // Clear any prior failure count first: a unit that hit its systemd restart
+            // rate limit (StartLimitBurst) will otherwise refuse to start again.
+            await ssh.BashAsync($"sudo /usr/bin/systemctl reset-failed {_options.RemoteServiceName}.service");
+            await ssh.BashAsync($"sudo /usr/bin/systemctl start {_options.RemoteServiceName}.service");
+          }
+
           // The following replaces -->> if (_options.RemoteDebugDisplayGui)
-          if (buildOptions.HasFlag(BuildOptions.Launch))
+          if (buildOptions.HasFlag(BuildOptions.Launch) && !hasRemoteService)
           {
             var launchTarget = _options.UseSelfContainedDeployment
               ? $"\"{_launchBuilder.RemoteDeployExecutableFilePath}\""

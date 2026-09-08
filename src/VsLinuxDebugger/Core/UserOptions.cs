@@ -19,6 +19,12 @@
     public string RemoteEnvironmentVariables { get; set; }
     /// <summary>Full path to `dotnet` executable.</summary>
     public string RemoteDotNetPath { get; set; }
+
+    /// <summary>Name of a systemd unit (without `.service`) that manages the debuggee on the
+    /// remote machine. When set, it is stopped before deploy and (re)started before
+    /// launch/attach, so the debuggee does not fight a supervisor restarting it underneath
+    /// the debugger. Leave blank to disable.</summary>
+    public string RemoteServiceName { get; set; }
     /// <summary>Base path to VSDBG (i.e. `~/.vsdbg`).</summary>
     public string RemoteVsDbgBasePath { get; set; }
     /// <summary>Full path to VS Debugger.</summary>

@@ -30,6 +30,17 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     public string RemoteEnvironmentVariables { get; set; } = string.Empty;
 
     [Category(RemoteDebugger)]
+    [DisplayName("Service Name (optional)")]
+    [Description(
+      "Name of a systemd unit (without '.service') that normally runs the debuggee, i.e. " +
+      "'myapp' for 'myapp.service'. When set, it is stopped (via 'sudo systemctl stop " +
+      "<name>.service') before files are deployed, and started (via 'sudo systemctl start " +
+      "<name>.service') before launch/attach, so the debuggee isn't fought over by a " +
+      "supervisor restarting it underneath the debugger. Requires the configured user to " +
+      "be able to run systemctl on this unit via sudo. Leave blank to disable.")]
+    public string RemoteServiceName { get; set; } = string.Empty;
+
+    [Category(RemoteDebugger)]
     [DisplayName(".NET executable")]
     [Description("Path of the .NET executable on remote machine. (Samples: `dotnet`, `~/.dotnet/dotnet`)")]
     public string RemoteDotNetPath { get; set; } = Constants.DefaultDotNetPath;
