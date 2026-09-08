@@ -32,5 +32,12 @@
     public string UserPrivateKeyPassword { get; set; }
 
     public bool UseSSHExeEnabled { get; set; } = false;
+
+    /// <summary>Command used to elevate the debugger process on the remote machine (i.e. `sudo -n -E`).</summary>
+    public string SudoCommand { get; set; } = Constants.DefaultSudoCommand;
+
+    /// <summary>When enabled, launches VSDBG via <see cref="SudoCommand"/> on the remote machine.
+    /// Use this when the debuggee runs with elevated/ambient capabilities the debugger must match to attach.</summary>
+    public bool UseSudoForDebugger { get; set; } = false;
   }
 }

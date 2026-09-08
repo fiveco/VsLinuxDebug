@@ -194,14 +194,20 @@ namespace VsLinuxDebugger.Core
           "DISPLAY=:0";
       }
 
+      // Optionally elevate the debugger itself, for debuggees running with capabilities
+      // (ambient/file capabilities, setuid, etc.) that VSDBG must match in order to attach.
+      var remoteVsDbgCommand = _opts.UseSudoForDebugger
+        ? $"{_opts.SudoCommand} {_opts.RemoteVsDbgFullPath}"
+        : _opts.RemoteVsDbgFullPath;
+
       if (_opts.UseSSHExeEnabled)
       {
-        adapterArgs = $"{sshPassword} {sshEndpoint} -T {displayAdapter} {_opts.RemoteVsDbgFullPath} {vsdbgLogPath}";
-        //// adapterArgs = $"-ssh {sshPassword} {sshEndpoint} -batch -T {RemoteVsDbgFullPath} --interpreter=vscode {vsdbgLogPath}";
+        adapterArgs = $"{sshPassword} {sshEndpoint} -T {displayAdapter} {remoteVsDbgCommand} {vsdbgLogPath}";
+        //// adapterArgs = $"-ssh {sshPassword} {sshEndpoint} -batch -T {remoteVsDbgCommand} --interpreter=vscode {vsdbgLogPath}";
       }
       else
       {
-        adapterArgs= $"-ssh {sshPassword} {sshEndpoint} -T {displayAdapter} {_opts.RemoteVsDbgFullPath} {vsdbgLogPath}";
+        adapterArgs= $"-ssh {sshPassword} {sshEndpoint} -T {displayAdapter} {remoteVsDbgCommand} {vsdbgLogPath}";
       }
 
       return (adapter, adapterArgs);

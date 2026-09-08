@@ -176,6 +176,9 @@ namespace VsLinuxDebugger
         RemoteDotNetPath = VsixPackage.VsixOptions.RemoteDotNetPath,
         RemoteVsDbgBasePath = VsixPackage.VsixOptions.RemoteVsDbgRootPath,
 
+        SudoCommand = VsixPackage.VsixOptions.SudoCommand,
+        UseSudoForDebugger = VsixPackage.VsixOptions.UseSudoForDebugger,
+
         UseCommandLineArgs = VsixPackage.VsixOptions.UseCommandLineArgs,
         //// UsePublish = Settings.UsePublish,
 

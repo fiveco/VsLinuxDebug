@@ -33,6 +33,24 @@ namespace Xeno.VsLinuxDebug.OptionsPages
       "(Samples: `~/.vs-debugger/`, `~/.vsdbg`)")]
     public string RemoteVsDbgRootPath { get; set; } = Constants.DefaultVsdbgBasePath;
 
+    [Category(RemoteDebugger)]
+    [DisplayName("Use Sudo for Debugger")]
+    [Description(
+      "Launch VSDBG on the remote machine via the command in 'Sudo Command'. " +
+      "Use this when the debuggee process runs with elevated or ambient capabilities " +
+      "that the debugger must also hold in order to attach (i.e. ptrace requires the " +
+      "tracer's capabilities to be a superset of the tracee's). Requires a passwordless " +
+      "sudo rule for the debugger path on the remote machine.")]
+    public bool UseSudoForDebugger { get; set; } = false;
+
+    [Category(RemoteDebugger)]
+    [DisplayName("Sudo Command")]
+    [Description(
+      "Command used to elevate the debugger when 'Use Sudo for Debugger' is enabled. " +
+      "'-E' preserves the environment (VSDBG needs it); '-n' fails fast instead of " +
+      "prompting for a password. (Default: `sudo -n -E`)")]
+    public string SudoCommand { get; set; } = Constants.DefaultSudoCommand;
+
     [Category(Experimental)]
     [DisplayName("Use Command Line Arguments")]
     [Description(

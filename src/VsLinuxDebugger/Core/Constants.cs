@@ -10,6 +10,9 @@
     public const string DefaultVsdbgBasePath = "~/.vs-debugger";
     public const string LaunchJson = "launch.json";
 
+    /// <summary>Default command used to elevate the debugger when <c>UseSudoForDebugger</c> is enabled.</summary>
+    public const string DefaultSudoCommand = "sudo -n -E";
+
     public const string PackageTarGz = "vsldBuildContents.tar.gz";
   }
 }
