@@ -25,13 +25,28 @@ namespace VsLinuxDebugger
   [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
   [Guid(DebuggerPackage.PackageGuidString)]
   [ProvideMenuResource("Menus.ctmenu", 1)]
-  [ProvideOptionPage(typeof(OptionsPage), "Linux Debugger", "General", 0, 0, true)]
+  [ProvideOptionPage(typeof(RemoteHostOptionsPage), "FCO Linux Debugger", "Remote Host", 0, 0, true, Sort = 1)]
+  [ProvideOptionPage(typeof(RemoteCredentialsOptionsPage), "FCO Linux Debugger", "Remote Credentials", 0, 0, true, Sort = 2)]
+  [ProvideOptionPage(typeof(RemoteDebuggerOptionsPage), "FCO Linux Debugger", "Remote Debugger", 0, 0, true, Sort = 3)]
+  [ProvideOptionPage(typeof(LocalOptionsPage), "FCO Linux Debugger", "Local", 0, 0, true, Sort = 4)]
+  [ProvideOptionPage(typeof(DisplayOptionsPage), "FCO Linux Debugger", "Display (X11)", 0, 0, true, Sort = 5)]
+  [ProvideOptionPage(typeof(ExperimentalOptionsPage), "FCO Linux Debugger", "Experimental", 0, 0, true, Sort = 6)]
   public sealed partial class DebuggerPackage : AsyncPackage
   {
     /// <summary>Package GUID string.</summary>
     public const string PackageGuidString = "19f87f23-7a2c-4279-ac7c-c9267776bbf9";
 
-    public OptionsPage VsixOptions => (OptionsPage)GetDialogPage(typeof(OptionsPage));
+    public RemoteHostOptionsPage RemoteHostOptions => (RemoteHostOptionsPage)GetDialogPage(typeof(RemoteHostOptionsPage));
+
+    public RemoteCredentialsOptionsPage RemoteCredentialsOptions => (RemoteCredentialsOptionsPage)GetDialogPage(typeof(RemoteCredentialsOptionsPage));
+
+    public RemoteDebuggerOptionsPage RemoteDebuggerOptions => (RemoteDebuggerOptionsPage)GetDialogPage(typeof(RemoteDebuggerOptionsPage));
+
+    public LocalOptionsPage LocalOptions => (LocalOptionsPage)GetDialogPage(typeof(LocalOptionsPage));
+
+    public DisplayOptionsPage DisplayOptions => (DisplayOptionsPage)GetDialogPage(typeof(DisplayOptionsPage));
+
+    public ExperimentalOptionsPage ExperimentalOptions => (ExperimentalOptionsPage)GetDialogPage(typeof(ExperimentalOptionsPage));
 
     /// <summary>
     /// Initialization of the package; this method is called right after the package is sited, so this is the place
@@ -47,7 +62,7 @@ namespace VsLinuxDebugger
       await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
       await Commands.InitializeAsync(this);
 
-      Logger.Init(this, OutputWindowType.Custom, VsixOptions.SwitchLinuxDbgOutput);
+      Logger.Init(this, OutputWindowType.Custom, LocalOptions.SwitchLinuxDbgOutput);
       Logger.Output("InitializeAsync");
     }
   }

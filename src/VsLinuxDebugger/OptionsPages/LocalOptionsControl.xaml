@@ -1,0 +1,46 @@
+<UserControl x:Class="Xeno.VsLinuxDebug.OptionsPages.LocalOptionsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d">
+
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="OptionsPageStyles.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </UserControl.Resources>
+
+  <StackPanel Style="{StaticResource PageRootStyle}">
+    <GroupBox Header="Local Settings" Style="{StaticResource OptionsGroupBoxStyle}">
+      <StackPanel>
+
+        <StackPanel Style="{StaticResource FieldRowStyle}">
+          <Label Content="PLink Local Path (blank to use embedded)" Style="{StaticResource FieldLabelStyle}" />
+          <TextBox Text="{Binding PLinkPath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
+          <TextBlock Style="{StaticResource FieldHelpTextStyle}"
+                     Text="Full path to local PLINK.EXE file. (i.e. 'C:\temp\putty\plink.exe')" />
+        </StackPanel>
+
+        <StackPanel Style="{StaticResource FieldRowStyle}">
+          <CheckBox Content="Delete 'launch.json' after build."
+                     IsChecked="{Binding DeleteLaunchJsonAfterBuild}"
+                     Style="{StaticResource FieldCheckBoxStyle}" />
+          <TextBlock Style="{StaticResource FieldHelpTextStyle}"
+                     Text="The `launch.json` is generated in your build folder. You may keep this for debugging." />
+        </StackPanel>
+
+        <StackPanel Style="{StaticResource FieldRowStyle}">
+          <CheckBox Content="Switch to LinuxDbg Output on Build"
+                     IsChecked="{Binding SwitchLinuxDbgOutput}"
+                     Style="{StaticResource FieldCheckBoxStyle}" />
+          <TextBlock Style="{StaticResource FieldHelpTextStyle}"
+                     Text="Automatically show output for Linux Debugger on build (default = false)." />
+        </StackPanel>
+
+      </StackPanel>
+    </GroupBox>
+  </StackPanel>
+</UserControl>

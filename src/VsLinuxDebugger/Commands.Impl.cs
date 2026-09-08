@@ -128,7 +128,7 @@ namespace VsLinuxDebugger
 
       await Task.Yield();
 
-      Instance._package.ShowOptionPage(typeof(OptionsPage));
+      Instance._package.ShowOptionPage(typeof(RemoteHostOptionsPage));
     }
 
     private void SetMenuTextAndVisibility(object sender, EventArgs e)
@@ -162,37 +162,37 @@ namespace VsLinuxDebugger
 
       return new UserOptions
       {
-        DeleteLaunchJsonAfterBuild = VsixPackage.VsixOptions.DeleteLaunchJsonAfterBuild,
+        DeleteLaunchJsonAfterBuild = VsixPackage.LocalOptions.DeleteLaunchJsonAfterBuild,
 
-        HostIp = VsixPackage.VsixOptions.HostIp,
-        HostPort = VsixPackage.VsixOptions.HostPort,
+        HostIp = VsixPackage.RemoteHostOptions.HostIp,
+        HostPort = VsixPackage.RemoteHostOptions.HostPort,
 
-        LocalPLinkPath = VsixPackage.VsixOptions.PLinkPath,
-        LocalSwitchLinuxDbgOutput = VsixPackage.VsixOptions.SwitchLinuxDbgOutput,
+        LocalPLinkPath = VsixPackage.LocalOptions.PLinkPath,
+        LocalSwitchLinuxDbgOutput = VsixPackage.LocalOptions.SwitchLinuxDbgOutput,
 
-        RemoteDebugDisplayGui = VsixPackage.VsixOptions.RemoteDebugDisplayGui,
-        RemoteDebugDisplayNumber = VsixPackage.VsixOptions.RemoteDebugDisplayNumber,
-        RemoteDeployBasePath = VsixPackage.VsixOptions.RemoteDeployBasePath,
-        RemoteEnvironmentVariables = VsixPackage.VsixOptions.RemoteEnvironmentVariables,
-        RemoteServiceName = VsixPackage.VsixOptions.RemoteServiceName,
-        RemoteDotNetPath = VsixPackage.VsixOptions.RemoteDotNetPath,
-        RemoteVsDbgBasePath = VsixPackage.VsixOptions.RemoteVsDbgRootPath,
+        RemoteDebugDisplayGui = VsixPackage.DisplayOptions.RemoteDebugDisplayGui,
+        RemoteDebugDisplayNumber = VsixPackage.DisplayOptions.RemoteDebugDisplayNumber,
+        RemoteDeployBasePath = VsixPackage.RemoteDebuggerOptions.RemoteDeployBasePath,
+        RemoteEnvironmentVariables = VsixPackage.RemoteDebuggerOptions.RemoteEnvironmentVariables,
+        RemoteServiceName = VsixPackage.RemoteDebuggerOptions.RemoteServiceName,
+        RemoteDotNetPath = VsixPackage.RemoteDebuggerOptions.RemoteDotNetPath,
+        RemoteVsDbgBasePath = VsixPackage.RemoteDebuggerOptions.RemoteVsDbgRootPath,
 
-        SudoCommand = VsixPackage.VsixOptions.SudoCommand,
-        UseSudoForDebugger = VsixPackage.VsixOptions.UseSudoForDebugger,
+        SudoCommand = VsixPackage.RemoteDebuggerOptions.SudoCommand,
+        UseSudoForDebugger = VsixPackage.RemoteDebuggerOptions.UseSudoForDebugger,
 
-        UseCommandLineArgs = VsixPackage.VsixOptions.UseCommandLineArgs,
-        UseSelfContainedDeployment = VsixPackage.VsixOptions.UseSelfContainedDeployment,
+        UseCommandLineArgs = VsixPackage.ExperimentalOptions.UseCommandLineArgs,
+        UseSelfContainedDeployment = VsixPackage.RemoteDebuggerOptions.UseSelfContainedDeployment,
         //// UsePublish = Settings.UsePublish,
 
-        UserPrivateKeyEnabled = VsixPackage.VsixOptions.UserPrivateKeyEnabled,
-        UserPrivateKeyPath = VsixPackage.VsixOptions.UserPrivateKeyPath,
-        UserPrivateKeyPassword = VsixPackage.VsixOptions.UserPrivateKeyPassword,
-        UserCertificatePath = VsixPackage.VsixOptions.UserCertificatePath,
-        UserName = VsixPackage.VsixOptions.UserName,
-        UserPass = VsixPackage.VsixOptions.UserPass,
-        UserGroupName = VsixPackage.VsixOptions.UserGroupName,
-        UseSSHExeEnabled = VsixPackage.VsixOptions.UseSSHExeEnabled
+        UserPrivateKeyEnabled = VsixPackage.RemoteCredentialsOptions.UserPrivateKeyEnabled,
+        UserPrivateKeyPath = VsixPackage.RemoteCredentialsOptions.UserPrivateKeyPath,
+        UserPrivateKeyPassword = VsixPackage.RemoteCredentialsOptions.UserPrivateKeyPassword,
+        UserCertificatePath = VsixPackage.RemoteCredentialsOptions.UserCertificatePath,
+        UserName = VsixPackage.RemoteCredentialsOptions.UserName,
+        UserPass = VsixPackage.RemoteCredentialsOptions.UserPass,
+        UserGroupName = VsixPackage.RemoteHostOptions.UserGroupName,
+        UseSSHExeEnabled = VsixPackage.RemoteCredentialsOptions.UseSSHExeEnabled
       };
     }
   }
