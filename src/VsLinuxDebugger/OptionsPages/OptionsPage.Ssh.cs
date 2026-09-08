@@ -37,12 +37,20 @@ namespace Xeno.VsLinuxDebug.OptionsPages
 
     [Category(Credentials)]
     [DisplayName("SSH Key File Enabled")]
-    [Description("Use SSH Key for connecting to remote machine.")]
+    [Description(
+      "Use an SSH private key instead of a password. Applies to the file transfer/bash " +
+      "connection always, and to the debugger connection when 'Use SSH.exe' is enabled " +
+      "(PLINK requires its own '.ppk' key format instead of an OpenSSH-format key, so " +
+      "this has no effect on the debugger connection unless 'Use SSH.exe' is on).")]
     public bool UserPrivateKeyEnabled { get; set; } = false;
 
     [Category(Credentials)]
     [DisplayName("SSH Private Key File (optional)")]
-    [Description("Private key file.")]
+    [Description(
+      "Path to an OpenSSH-format private key file. (i.e. an SSH CA-signed key: point this " +
+      "at the private key; an accompanying '-cert.pub' file beside it is picked up " +
+      "automatically by ssh.exe/OpenSSH, but is not supported by the bash/file-transfer " +
+      "connection, which falls back to the password if the certificate is required.)")]
     public string UserPrivateKeyPath { get; set; } = Path.Combine(
       Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
       ".ssh\\id_rsa");

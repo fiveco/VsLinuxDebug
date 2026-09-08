@@ -177,30 +177,27 @@ namespace VsLinuxDebugger.Core
 
       // Adapter Arguments:
       // NOTE:
-      //  1. SSH Private Key ("-i PPK") fails with PLINK. Must use manual password until this is resolved.
+      //  1. SSH Private Key ("-i PPK") fails with PLINK; PuTTY/plink requires its own
+      //     ".ppk" key format, not an OpenSSH-format private key. Use ssh.exe (below) for
+      //     OpenSSH-format keys, or convert the key to PPK for use with PLINK.
       //  2. Strict Host Key Checking is disabled by default; this doesn't need set.
       //
       // REF: https://linuxhint.com/ssh-stricthostkeychecking/
-      //      $"-i \"{_opts.UserPrivateKeyPath}\" -o \"StrictHostKeyChecking no\" {RemoteUserName}@{RemoteHostIp} {_opts.RemoteVsDbgPath} --interpreter=vscode {vsdbgLogPath}")
-      //
-      //// var strictKeyChecking = " -o \"StrictHostKeyChecking no\"";
-      ////
-      ////var sshPassword = !_opts.UserPrivateKeyEnabled
-      ////  ? $"-pw {RemoteUserPass}"
-      ////  : $"-i \"{_opts.UserPrivateKeyPath}{strictKeyChecking}\"";
       string sshPassword = "";
 
-      if(_opts.UseSSHExeEnabled)
+      if (_opts.UseSSHExeEnabled)
       {
-        sshPassword = ""; //nothing to do, we assume that c:\users\[user]\.ssh\id_rsa exists
+        // ssh.exe (OpenSSH) supports "-i <keyfile>" directly.
+        sshPassword = _opts.UserPrivateKeyEnabled && !string.IsNullOrEmpty(_opts.UserPrivateKeyPath)
+          ? $"-i \"{_opts.UserPrivateKeyPath}\""
+          : ""; // Nothing to do; ssh.exe falls back to its own default key discovery (i.e. ~/.ssh/id_rsa).
       }
       else
       {
         sshPassword = $"-pw {RemoteUserPass}";
       }
 
-      // TODO: Figure out why "-i <keyfile>" isn't working.
-      if (string.IsNullOrEmpty(RemoteUserPass))
+      if (!_opts.UseSSHExeEnabled && string.IsNullOrEmpty(RemoteUserPass))
         Logger.Output("You must provide a User Password to debug.");
 
       string adapter = plinkPath;
