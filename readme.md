@@ -1,10 +1,10 @@
 # FCO Linux Debugger
 
-> **This is a fork.** FCO Linux Debugger is a fork of [SuessLabs/VsLinuxDebug](https://github.com/SuessLabs/VsLinuxDebug) ("VS Linux Debugger" / "VS .NET Linux Debugger" on the marketplace), substantially modified by [FiveCo](https://github.com/fiveco) for internal remote-debugging needs against embedded Linux devices. It is licensed under the same [MIT License](LICENSE) as the original project. If you're looking for the original, upstream, general-purpose extension, get it from [SuessLabs on the Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=SuessLabs.VSLinuxDebugger) instead — this fork is not a drop-in replacement and is not published on the marketplace.
+> **This is a fork.** FCO Linux Debugger is a fork of [SuessLabs/VsLinuxDebug](https://github.com/SuessLabs/VsLinuxDebug) ("VS Linux Debugger" / "VS .NET Linux Debugger" on the marketplace), substantially modified by FiveCo for internal remote-debugging needs against embedded Linux devices. It is licensed under the same [MIT License](LICENSE) as the original project. If you're looking for the original, upstream, general-purpose extension, get it from [SuessLabs on the Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=SuessLabs.VSLinuxDebugger) instead — this fork is not a drop-in replacement and is not published on the marketplace.
 
 Remotely deploy and debug your .NET C# apps via SSH to Linux using Visual Studio.
 
-Source: [github.com/fiveco/VsLinuxDebug](https://github.com/fiveco/VsLinuxDebug)
+Source: `fiveco-gitea01.fiveco.local/FiveCo/vs-ext-linux-debugger`
 
 ## Overview
 

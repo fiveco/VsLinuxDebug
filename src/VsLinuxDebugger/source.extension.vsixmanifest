@@ -9,7 +9,7 @@
                   Publisher="FiveCo" />
         <DisplayName>FCO Linux Debugger</DisplayName>
         <Description xml:space="preserve">Remotely deploy and debug your .NET apps via SSH on your Linux device using Visual Studio. Fork of Suess Labs' VS Linux Debugger, maintained by FiveCo.</Description>
-        <MoreInfo>https://github.com/fiveco/VsLinuxDebug</MoreInfo>
+        <MoreInfo>https://fiveco-gitea01.fiveco.local/FiveCo/vs-ext-linux-debugger</MoreInfo>
         <License>LICENSE.txt</License>
         <GettingStartedGuide>..\..\readme.md</GettingStartedGuide>
         <ReleaseNotes>..\..\release-notes.md</ReleaseNotes>
