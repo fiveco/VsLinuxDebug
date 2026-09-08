@@ -57,6 +57,9 @@ namespace VsLinuxDebugger.Core
     /// <summary>Full path to the remote assembly. (i.e. `/home/USER/VLSDbg/Proj/ConsoleApp1.dll`)</summary>
     public string RemoteDeployAssemblyFilePath => LinuxPath.Combine(RemoteDeployProjectFolder, $"{AssemblyName}.dll");
 
+    /// <summary>Full path to the remote executable, for a self-contained deployment. (i.e. `/home/USER/VLSDbg/Proj/ConsoleApp1`)</summary>
+    public string RemoteDeployExecutableFilePath => LinuxPath.Combine(RemoteDeployProjectFolder, AssemblyName);
+
     /// <summary>Folder of our remote assembly. (i.e. `/home/USER/VLSDbg/Proj`)</summary>
     public string RemoteDeployProjectFolder => LinuxPath.Combine(_opts.RemoteDeployBasePath, ProjectName);
 
@@ -84,9 +87,25 @@ namespace VsLinuxDebugger.Core
 
       (adapter, adapterArgs) = GetAdapter(vsdbgLogging);
 
+      string program;
+      string[] args;
+
+      if (_opts.UseSelfContainedDeployment)
+      {
+        // Self-contained (or AOT) publish: launch the native executable directly.
+        program = RemoteDeployExecutableFilePath;
+        args = new string[0];
+      }
+      else
+      {
+        // Framework-dependent: launch via `dotnet <assembly>.dll`.
+        program = RemoteDotNetPath;
+        args = new[] { $"{AssemblyName}.dll" };
+      }
+
       var obj = new Launch(
-          RemoteDotNetPath,
-          $"{AssemblyName}.dll", /// RemoteDeployAppPath,
+          program,
+          args,
           RemoteDeployProjectFolder,
           default,
           false)

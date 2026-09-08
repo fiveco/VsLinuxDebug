@@ -180,6 +180,7 @@ namespace VsLinuxDebugger
         UseSudoForDebugger = VsixPackage.VsixOptions.UseSudoForDebugger,
 
         UseCommandLineArgs = VsixPackage.VsixOptions.UseCommandLineArgs,
+        UseSelfContainedDeployment = VsixPackage.VsixOptions.UseSelfContainedDeployment,
         //// UsePublish = Settings.UsePublish,
 
         UserPrivateKeyEnabled = VsixPackage.VsixOptions.UserPrivateKeyEnabled,

@@ -39,8 +39,8 @@ namespace Xeno.VsLinuxDebug.OptionsPages
       "Launch VSDBG on the remote machine via the command in 'Sudo Command'. " +
       "Use this when the debuggee process runs with elevated or ambient capabilities " +
       "that the debugger must also hold in order to attach (i.e. ptrace requires the " +
-      "tracer's capabilities to be a superset of the tracee's). Requires a passwordless " +
-      "sudo rule for the debugger path on the remote machine.")]
+      "tracer's capabilities to be a superset of the tracee's). The configured user " +
+      "must be able to run the debugger path via sudo (passwordless or otherwise).")]
     public bool UseSudoForDebugger { get; set; } = false;
 
     [Category(RemoteDebugger)]
@@ -50,6 +50,14 @@ namespace Xeno.VsLinuxDebug.OptionsPages
       "'-E' preserves the environment (VSDBG needs it); '-n' fails fast instead of " +
       "prompting for a password. (Default: `sudo -n -E`)")]
     public string SudoCommand { get; set; } = Constants.DefaultSudoCommand;
+
+    [Category(RemoteDebugger)]
+    [DisplayName("Use Self-Contained Deployment")]
+    [Description(
+      "Launch the deployed program directly as a native executable instead of via " +
+      "'dotnet <assembly>.dll'. Use this when the project is published self-contained " +
+      "(or AOT) for the remote machine's runtime identifier.")]
+    public bool UseSelfContainedDeployment { get; set; } = false;
 
     [Category(Experimental)]
     [DisplayName("Use Command Line Arguments")]

@@ -24,6 +24,10 @@
     public bool UseCommandLineArgs { get; set; }
     public bool UsePublish { get; set; }
 
+    /// <summary>When enabled, launches the deployed program directly as a native executable
+    /// (i.e. a self-contained/AOT publish) instead of via `dotnet &lt;assembly&gt;.dll`.</summary>
+    public bool UseSelfContainedDeployment { get; set; } = false;
+
     public string UserGroupName { get; set; }
     public string UserName { get; set; }
     public string UserPass { get; set; }

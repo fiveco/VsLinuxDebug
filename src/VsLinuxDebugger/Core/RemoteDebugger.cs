@@ -85,6 +85,12 @@ namespace VsLinuxDebugger.Core
           if (buildOptions.HasFlag(BuildOptions.Deploy))
           {
             await ssh.UploadFilesAsync(_launchBuilder.OutputDirFullPath, _launchBuilder.RemoteDeployProjectFolder);
+
+            if (_options.UseSelfContainedDeployment)
+            {
+              // Transfer (tar/scp) from Windows does not preserve the exec bit.
+              await ssh.BashAsync($"chmod +x \"{_launchBuilder.RemoteDeployExecutableFilePath}\"");
+            }
           }
           ////else if (buildOptions.HasFlag(BuildOptions.Publish))
           ////{
@@ -94,7 +100,10 @@ namespace VsLinuxDebugger.Core
           // The following replaces -->> if (_options.RemoteDebugDisplayGui)
           if (buildOptions.HasFlag(BuildOptions.Launch))
           {
-            var cmd = $"DISPLAY=:0 dotnet \"{_launchBuilder.RemoteDeployAssemblyFilePath}\" &";
+            var launchTarget = _options.UseSelfContainedDeployment
+              ? $"\"{_launchBuilder.RemoteDeployExecutableFilePath}\""
+              : $"dotnet \"{_launchBuilder.RemoteDeployAssemblyFilePath}\"";
+            var cmd = $"DISPLAY=:0 {launchTarget} &";
             //// var retPid = ssh.Bash(cmd);
 
             // RET: "[1] 31974"

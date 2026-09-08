@@ -17,13 +17,19 @@ namespace VsLinuxDebugger.Core.Remote
     /// <param name="remoteOutputFolder">Working directory (CWD) where app resides.</param>
     /// <param name="envVariables">Custom environment variables.</param>
     public Launch(string dotNetPath, string remoteAppFileName, string remoteOutputFolder, string envVariables = default, bool stopAtEntry = false)
+      : this(dotNetPath, new[] { remoteAppFileName }, remoteOutputFolder, envVariables, stopAtEntry)
     {
-      ////string appPath = LinuxPath.Combine(remoteDebugFolder, $"{appName}.dll");
-      string appToLaunch = remoteAppFileName;
+    }
 
-      System.IO.Path.Combine("");
-      _remoteDotNetPath = dotNetPath;
-      _args = new string[] { appToLaunch };
+    /// <summary>Launch JSON class</summary>
+    /// <param name="program">Executable to launch on the remote machine (i.e. `dotnet`, or the app itself for a self-contained deployment).</param>
+    /// <param name="args">Arguments passed to <paramref name="program"/> (i.e. the assembly path for a framework-dependent deployment).</param>
+    /// <param name="remoteOutputFolder">Working directory (CWD) where app resides.</param>
+    /// <param name="envVariables">Custom environment variables.</param>
+    public Launch(string program, string[] args, string remoteOutputFolder, string envVariables = default, bool stopAtEntry = false)
+    {
+      _remoteDotNetPath = program;
+      _args = args;
       _remoteOutputFolder = remoteOutputFolder;
       _environmentVariables = envVariables;
       _stopAtEntry = stopAtEntry;
