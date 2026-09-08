@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("FCO Linux Debugger")]
 [assembly: AssemblyDescription("Remote system deployment and debugger for Visual Studio IDE")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Xeno Innovations, Inc.")]
+[assembly: AssemblyCompany("FiveCo")]
 [assembly: AssemblyProduct("FCO Linux Debugger")]
-[assembly: AssemblyCopyright("Copyright 2022-2024 Xeno Innovations, Inc.")]
+[assembly: AssemblyCopyright("Copyright FiveCo")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

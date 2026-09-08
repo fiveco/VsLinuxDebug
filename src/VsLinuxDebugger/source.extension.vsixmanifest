@@ -6,14 +6,14 @@
         <Identity Id="VsLinuxDebugger.4d7bf4de-5015-4e24-92c0-7f9f3397b2da"
                   Version="|%CurrentProject%;GetVsixVersion|"
                   Language="en-US"
-                  Publisher="Suess Labs" />
+                  Publisher="FiveCo" />
         <DisplayName>FCO Linux Debugger</DisplayName>
-        <Description xml:space="preserve">Remotely deploy and debug your .NET apps visa SSH on your Linux device using Visual Studio 2022. Works with popular Linux distrobutions such as Ubuntu, Raspberry Pi, and more!</Description>
-        <MoreInfo>https://github.com/SuessLabs/VsLinuxDebug</MoreInfo>
+        <Description xml:space="preserve">Remotely deploy and debug your .NET apps via SSH on your Linux device using Visual Studio. Fork of Suess Labs' VS Linux Debugger, maintained by FiveCo.</Description>
+        <MoreInfo>https://github.com/fiveco/VsLinuxDebug</MoreInfo>
         <License>LICENSE.txt</License>
         <GettingStartedGuide>..\..\readme.md</GettingStartedGuide>
         <ReleaseNotes>..\..\release-notes.md</ReleaseNotes>
-        <Icon>Resources\TuxDebug.png</Icon>
+        <Icon>Resources\FiveCoLogo.png</Icon>
         <Tags>debug; build; remote debug; vsdbg; linux; avalonia; xamarin; rpi; rpi4; remotedebug; remote; debugger; linux debug; net6; dotnet; raspberry pi; ubuntu; suess; suess-labs; suesslabs; xeno-innovations</Tags>
     </Metadata>
     <Installation>
