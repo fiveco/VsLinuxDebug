@@ -1,0 +1,136 @@
+name: FCO Linux Debugger Release
+
+on:
+  push:
+
+env:
+  PROJECT: src\VsLinuxDebugger\VsLinuxDebugger.csproj
+
+jobs:
+  build:
+    name: Build (Windows)
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: powershell
+
+    steps:
+      - name: Checkout
+        env:
+          GITEA_TOKEN: ${{ github.token }}
+        run: |
+          $GITEA_HOST = "${{ github.server_url }}" -replace 'https://',''
+          git config --global http.sslVerify false
+          git clone "https://oauth2:$($env:GITEA_TOKEN)@$GITEA_HOST/${{ github.repository }}.git" .
+          git checkout "${{ github.sha }}"
+
+      # This is a legacy-style VSIX project (ProjectTypeGuids include the VSIX type,
+      # imports Microsoft.VsSDK.targets): it requires the real Visual Studio/Build Tools
+      # MSBuild + VSSDK workload to compile. `dotnet build` alone fails on it (missing
+      # ProvideOptionPageAttribute, UIElementDialogPage, etc. -- verified locally), so this
+      # does not use `dotnet build`/`dotnet restore` the way a plain SDK-style project would.
+      - name: Locate MSBuild
+        id: msbuild
+        run: |
+          $vswhere = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuildPath = & $vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+          if (-not $msbuildPath) {
+            Write-Error "MSBuild.exe not found. Is a Visual Studio Build Tools install with the 'Visual Studio extension development' workload present on this runner?"
+            exit 1
+          }
+          Write-Host "Using MSBuild: $msbuildPath"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$msbuildPath"
+
+      - name: Restore dependencies
+        run: |
+          & "${{ steps.msbuild.outputs.path }}" "${{ env.PROJECT }}" -t:Restore -p:Configuration=Debug -nologo -v:minimal
+
+      - name: Build
+        run: |
+          & "${{ steps.msbuild.outputs.path }}" "${{ env.PROJECT }}" -t:Build -p:Configuration=Debug -nologo -v:minimal
+
+  release:
+    name: Publish VSIX release
+    needs: [build]
+    if: github.ref_type == 'tag'
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: powershell
+
+    steps:
+      - name: Checkout
+        env:
+          GITEA_TOKEN: ${{ github.token }}
+        run: |
+          $GITEA_HOST = "${{ github.server_url }}" -replace 'https://',''
+          git config --global http.sslVerify false
+          git clone "https://oauth2:$($env:GITEA_TOKEN)@$GITEA_HOST/${{ github.repository }}.git" .
+          git checkout "${{ github.sha }}"
+
+      - name: Verify tag is on master
+        run: |
+          $branches = git branch -r --contains "${{ github.sha }}"
+          if (-not ($branches -match 'origin/master')) {
+            Write-Error "Tag '${{ github.ref_name }}' is not on master"
+            exit 1
+          }
+
+      - name: Verify tag matches VsixVersion
+        run: |
+          $TAG = "${{ github.ref_name }}"
+          $VSIX_VERSION = (Select-String -Path "${{ env.PROJECT }}" -Pattern '<VsixVersion>([^<]+)</VsixVersion>').Matches[0].Groups[1].Value
+          Write-Host "Tag:                $TAG"
+          Write-Host "csproj VsixVersion: $VSIX_VERSION"
+          $TAG_SHORT = ($TAG -split '\.' | Select-Object -First 3) -join '.'
+          $VSIX_SHORT = ($VSIX_VERSION -split '\.' | Select-Object -First 3) -join '.'
+          if ($TAG_SHORT -ne $VSIX_SHORT) {
+            Write-Error "Tag '$TAG' does not match <VsixVersion> '$VSIX_VERSION' in ${{ env.PROJECT }}"
+            exit 1
+          }
+
+      - name: Locate MSBuild
+        id: msbuild
+        run: |
+          $vswhere = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuildPath = & $vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+          if (-not $msbuildPath) {
+            Write-Error "MSBuild.exe not found. Is a Visual Studio Build Tools install with the 'Visual Studio extension development' workload present on this runner?"
+            exit 1
+          }
+          Write-Host "Using MSBuild: $msbuildPath"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$msbuildPath"
+
+      - name: Restore dependencies
+        run: |
+          & "${{ steps.msbuild.outputs.path }}" "${{ env.PROJECT }}" -t:Restore -p:Configuration=Release -nologo -v:minimal
+
+      - name: Build VSIX
+        run: |
+          & "${{ steps.msbuild.outputs.path }}" "${{ env.PROJECT }}" -t:Build -p:Configuration=Release -nologo -v:minimal
+
+      - name: Create Gitea release with the VSIX attached
+        env:
+          GITEA_TOKEN: ${{ github.token }}
+        run: |
+          $GITEA_HOST = "${{ github.server_url }}"
+          $VSIX_PATH = "output\Release\VsLinuxDebugger.vsix"
+          if (-not (Test-Path $VSIX_PATH)) {
+            Write-Error "Expected VSIX not found at $VSIX_PATH"
+            exit 1
+          }
+
+          $headers = @{ Authorization = "token $($env:GITEA_TOKEN)" }
+          $releaseBody = @{
+            tag_name = "${{ github.ref_name }}"
+            name     = "${{ github.ref_name }}"
+            draft    = $false
+          } | ConvertTo-Json
+
+          $release = Invoke-RestMethod -Method Post `
+            -Uri "$GITEA_HOST/api/v1/repos/${{ github.repository }}/releases" `
+            -Headers $headers -ContentType "application/json" -Body $releaseBody -SkipCertificateCheck
+
+          Invoke-RestMethod -Method Post `
+            -Uri "$GITEA_HOST/api/v1/repos/${{ github.repository }}/releases/$($release.id)/assets?name=VsLinuxDebugger.vsix" `
+            -Headers $headers -InFile $VSIX_PATH -ContentType "application/octet-stream" -SkipCertificateCheck
