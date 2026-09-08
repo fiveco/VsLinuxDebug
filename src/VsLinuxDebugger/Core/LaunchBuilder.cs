@@ -187,10 +187,19 @@ namespace VsLinuxDebugger.Core
 
       if (_opts.UseSSHExeEnabled)
       {
-        // ssh.exe (OpenSSH) supports "-i <keyfile>" directly.
-        sshPassword = _opts.UserPrivateKeyEnabled && !string.IsNullOrEmpty(_opts.UserPrivateKeyPath)
-          ? $"-i \"{_opts.UserPrivateKeyPath}\""
-          : ""; // Nothing to do; ssh.exe falls back to its own default key discovery (i.e. ~/.ssh/id_rsa).
+        // ssh.exe (OpenSSH) supports "-i <keyfile>" directly, and finds a matching
+        // "<keyfile>-cert.pub" on its own; only override with -oCertificateFile if the
+        // user pointed us at a certificate somewhere else.
+        if (_opts.UserPrivateKeyEnabled && !string.IsNullOrEmpty(_opts.UserPrivateKeyPath))
+        {
+          sshPassword = $"-i \"{_opts.UserPrivateKeyPath}\"";
+          if (!string.IsNullOrEmpty(_opts.UserCertificatePath))
+            sshPassword += $" -oCertificateFile=\"{_opts.UserCertificatePath}\"";
+        }
+        else
+        {
+          sshPassword = ""; // Nothing to do; ssh.exe falls back to its own default key discovery (i.e. ~/.ssh/id_rsa).
+        }
       }
       else
       {

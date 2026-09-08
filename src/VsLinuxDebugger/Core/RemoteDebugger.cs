@@ -282,6 +282,7 @@ namespace VsLinuxDebugger.Core
         PrivateKeyEnabled = _options.UserPrivateKeyEnabled,
         PrivateKeyPath = _options.UserPrivateKeyPath,
         PrivateKeyPassword = _options.UserPrivateKeyPassword,
+        CertificatePath = _options.UserCertificatePath,
       };
     }
 

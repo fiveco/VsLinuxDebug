@@ -188,6 +188,7 @@ namespace VsLinuxDebugger
         UserPrivateKeyEnabled = VsixPackage.VsixOptions.UserPrivateKeyEnabled,
         UserPrivateKeyPath = VsixPackage.VsixOptions.UserPrivateKeyPath,
         UserPrivateKeyPassword = VsixPackage.VsixOptions.UserPrivateKeyPassword,
+        UserCertificatePath = VsixPackage.VsixOptions.UserCertificatePath,
         UserName = VsixPackage.VsixOptions.UserName,
         UserPass = VsixPackage.VsixOptions.UserPass,
         UserGroupName = VsixPackage.VsixOptions.UserGroupName,

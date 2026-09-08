@@ -38,19 +38,13 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     [Category(Credentials)]
     [DisplayName("SSH Key File Enabled")]
     [Description(
-      "Use an SSH private key instead of a password. Applies to the file transfer/bash " +
-      "connection always, and to the debugger connection when 'Use SSH.exe' is enabled " +
-      "(PLINK requires its own '.ppk' key format instead of an OpenSSH-format key, so " +
-      "this has no effect on the debugger connection unless 'Use SSH.exe' is on).")]
+      "Use an SSH private key instead of a password. PLINK needs a '.ppk' key, so this " +
+      "only affects the debugger connection when 'Use SSH.exe' is enabled.")]
     public bool UserPrivateKeyEnabled { get; set; } = false;
 
     [Category(Credentials)]
     [DisplayName("SSH Private Key File (optional)")]
-    [Description(
-      "Path to an OpenSSH-format private key file. (i.e. an SSH CA-signed key: point this " +
-      "at the private key; an accompanying '-cert.pub' file beside it is picked up " +
-      "automatically by ssh.exe/OpenSSH, but is not supported by the bash/file-transfer " +
-      "connection, which falls back to the password if the certificate is required.)")]
+    [Description("Path to an OpenSSH-format private key file.")]
     public string UserPrivateKeyPath { get; set; } = Path.Combine(
       Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
       ".ssh\\id_rsa");
@@ -59,6 +53,13 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     [DisplayName("SSH Private Key Password (optional)")]
     [Description("Private key password (only if it was set).")]
     public string UserPrivateKeyPassword { get; set; } = "";
+
+    [Category(Credentials)]
+    [DisplayName("SSH Certificate File (optional)")]
+    [Description(
+      "Path to a CA-signed '<key>-cert.pub' certificate. Leave blank to auto-detect it " +
+      "next to the private key.")]
+    public string UserCertificatePath { get; set; } = "";
 
     [Category(Credentials)]
     [DisplayName("Use SSH.exe with integrated user/[..]/.ssh/id_rsa instead of PLINK")]

@@ -44,6 +44,11 @@
     public string UserPrivateKeyPath { get; set; }
     public string UserPrivateKeyPassword { get; set; }
 
+    /// <summary>Explicit path to an OpenSSH certificate file (i.e. a CA-signed
+    /// '&lt;key&gt;-cert.pub'). When blank, the certificate is looked up next to
+    /// <see cref="UserPrivateKeyPath"/> using the OpenSSH naming convention.</summary>
+    public string UserCertificatePath { get; set; }
+
     public bool UseSSHExeEnabled { get; set; } = false;
 
     /// <summary>Command used to elevate the debugger process on the remote machine (i.e. `sudo -n -E`).</summary>

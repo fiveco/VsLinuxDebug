@@ -163,9 +163,11 @@ namespace VsLinuxDebugger.Core
         {
           Logger.Output($"SSH configuring private key connection...");
 
-          // OpenSSH convention: a CA-signed certificate is a sibling file named
-          // "<private key path>-cert.pub" (i.e. "id_ed25519" + "id_ed25519-cert.pub").
-          var certificatePath = $"{_info.PrivateKeyPath}-cert.pub";
+          // Explicit path wins; otherwise, OpenSSH convention: "<key path>-cert.pub".
+          var certificatePath = !string.IsNullOrEmpty(_info.CertificatePath)
+            ? _info.CertificatePath
+            : $"{_info.PrivateKeyPath}-cert.pub";
+
           if (!File.Exists(certificatePath))
             certificatePath = null;
           else
