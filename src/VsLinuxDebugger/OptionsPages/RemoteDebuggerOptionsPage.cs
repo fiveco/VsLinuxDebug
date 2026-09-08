@@ -16,12 +16,15 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     private bool _useSudoForDebugger = false;
     private string _sudoCommand = Constants.DefaultSudoCommand;
     private bool _useSelfContainedDeployment = false;
+    private string _remoteRuntimeIdentifier = "linux-arm64";
 
     public event PropertyChangedEventHandler PropertyChanged;
 
     [Category("Remote Debugger")]
     [DisplayName("Upload to folder")]
-    [Description("Folder for to transfer files to. For HOME folder, use './VSLinuxDbg' and not '~/VSLinuxDbg'")]
+    [Description(
+      "Folder files are deployed to, as-is (no per-project subfolder is added). For HOME " +
+      "folder, use './VSLinuxDbg' and not '~/VSLinuxDbg'")]
     public string RemoteDeployBasePath
     {
       get => _remoteDeployBasePath;
@@ -111,6 +114,18 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     {
       get => _useSelfContainedDeployment;
       set { _useSelfContainedDeployment = value; OnPropertyChanged(nameof(UseSelfContainedDeployment)); }
+    }
+
+    [Category("Remote Debugger")]
+    [DisplayName("Remote Runtime Identifier")]
+    [Description(
+      "The .NET Runtime Identifier (RID) to publish for when 'Use Self-Contained " +
+      "Deployment' is enabled, matching the remote machine's OS/architecture (i.e. " +
+      "`linux-arm64`, `linux-x64`, `linux-arm`).")]
+    public string RemoteRuntimeIdentifier
+    {
+      get => _remoteRuntimeIdentifier;
+      set { _remoteRuntimeIdentifier = value; OnPropertyChanged(nameof(RemoteRuntimeIdentifier)); }
     }
 
     protected override UIElement Child => new RemoteDebuggerOptionsControl(this);

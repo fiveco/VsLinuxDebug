@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using EnvDTE;
 using EnvDTE80;
@@ -30,7 +31,13 @@ namespace VsLinuxDebugger.Core
       SolutionDirPath = Path.GetDirectoryName(dte.Solution.FullName);
       OutputDirName = dteProject.ConfigurationManager.ActiveConfiguration.Properties.Item("OutputPath").Value.ToString();
       OutputDirFullPath = Path.Combine(Path.GetDirectoryName(dteProject.FullName), OutputDirName);
+      PublishDirFullPath = Path.Combine(Path.GetTempPath(), "VsLinuxDebuggerPublish", ProjectName);
     }
+
+    /// <summary>Folder `dotnet publish` writes to for a self-contained deployment. A temp folder,
+    /// not under the project's own `bin`/`obj`, so it never collides with the IDE's own build
+    /// output and is safe to wipe before each publish.</summary>
+    public string PublishDirFullPath { get; set; }
 
     /// <summary>Project assembly name. I.E. "ConsoleApp1"</summary>
     public string AssemblyName { get; set; }
@@ -55,14 +62,15 @@ namespace VsLinuxDebugger.Core
     /// <summary>Project name (not always the same as AssemblyName). I.E. "Console App1"</summary>
     public string ProjectName { get; set; }
 
-    /// <summary>Full path to the remote assembly. (i.e. `/home/USER/VLSDbg/Proj/ConsoleApp1.dll`)</summary>
+    /// <summary>Full path to the remote assembly. (i.e. `/home/USER/VLSDbg/ConsoleApp1.dll`)</summary>
     public string RemoteDeployAssemblyFilePath => LinuxPath.Combine(RemoteDeployProjectFolder, $"{AssemblyName}.dll");
 
-    /// <summary>Full path to the remote executable, for a self-contained deployment. (i.e. `/home/USER/VLSDbg/Proj/ConsoleApp1`)</summary>
+    /// <summary>Full path to the remote executable, for a self-contained deployment. (i.e. `/home/USER/VLSDbg/ConsoleApp1`)</summary>
     public string RemoteDeployExecutableFilePath => LinuxPath.Combine(RemoteDeployProjectFolder, AssemblyName);
 
-    /// <summary>Folder of our remote assembly. (i.e. `/home/USER/VLSDbg/Proj`)</summary>
-    public string RemoteDeployProjectFolder => LinuxPath.Combine(_opts.RemoteDeployBasePath, ProjectName);
+    /// <summary>Folder files are deployed to. This is the configured deploy path itself
+    /// (i.e. `/home/USER/VLSDbg`) -- no per-project subfolder is added.</summary>
+    public string RemoteDeployProjectFolder => _opts.RemoteDeployBasePath;
 
     public string RemoteDotNetPath => _opts.RemoteDotNetPath;
 
@@ -115,6 +123,28 @@ namespace VsLinuxDebugger.Core
         AdapterArgs = adapterArgs,
       };
 
+      return WriteLaunchJson(obj);
+    }
+
+    /// <summary>Generates a `launch.json` that attaches to an already-running remote process
+    /// (i.e. one managed by a systemd service), instead of launching a new one.</summary>
+    /// <param name="processId">Remote process ID to attach to.</param>
+    /// <returns>Returns the local path to the file.</returns>
+    public string GenerateAttachLaunchJson(int processId, bool vsdbgLogging = false)
+    {
+      string adapter, adapterArgs;
+
+      (adapter, adapterArgs) = GetAdapter(vsdbgLogging);
+
+      var obj = Launch.CreateAttach(processId);
+      obj.Adapter = adapter;
+      obj.AdapterArgs = adapterArgs;
+
+      return WriteLaunchJson(obj);
+    }
+
+    private string WriteLaunchJson(Launch obj)
+    {
       var json = JsonSerializer.Serialize(obj, new JsonSerializerOptions
       {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

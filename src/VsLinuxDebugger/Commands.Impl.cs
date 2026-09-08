@@ -16,7 +16,6 @@ namespace VsLinuxDebugger
     {
       public const int CmdBuildDeployOnly = 0x1001;
       public const int CmdBuildDeployDebug = 0x1002;
-      public const int CmdBuildDeployLaunch = 0x1006;
 
       public const int CmdDebugOnly = 0x1003;
       ////public const int CmdPublishOnly = 0x1006;
@@ -40,7 +39,6 @@ namespace VsLinuxDebugger
     ////    case CommandIds.CmdBuildDeployOnly: return "Build and Deploy";
     ////    case CommandIds.CmdBuildDeployDebug: return "Build, Deploy and Debug";
     ////
-    ////    case CommandIds.CmdBuildDeployLaunch: return "Build, Deploy and Launch";
     ////    case CommandIds.CmdDebugOnly: return "Debug Only";
     ////    ////case CommandIds.CmdPublishOnly: return "Publish Only";
     ////    ////case CommandIds.CmdPublishDebug: return "Publish and Debug";
@@ -57,7 +55,6 @@ namespace VsLinuxDebugger
     {
       AddMenuItem(cmd, CommandIds.CmdBuildDeployOnly, SetMenuTextAndVisibility, OnBuildDeployAsync);
       AddMenuItem(cmd, CommandIds.CmdBuildDeployDebug, SetMenuTextAndVisibility, OnBuildDeployDebugAsync);
-      AddMenuItem(cmd, CommandIds.CmdBuildDeployLaunch, SetMenuTextAndVisibility, OnBuildDeployLaunchAsync);
 
       ////AddMenuItem(cmd, CommandIds.CmdPublishDebug, SetMenuTextAndVisibility, OnPublishDebugAsyc);
       AddMenuItem(cmd, CommandIds.CmdDebugOnly, SetMenuTextAndVisibility, OnDebugOnlyAsync);
@@ -101,14 +98,10 @@ namespace VsLinuxDebugger
       await ExecuteBuildAsync(BuildOptions.Build | BuildOptions.Deploy | BuildOptions.Debug);
     }
 
-    private async void OnBuildDeployLaunchAsync(object sender, EventArgs e)
-    {
-      await ExecuteBuildAsync(BuildOptions.Build | BuildOptions.Deploy | BuildOptions.Launch);
-    }
-
     private async void OnDebugOnlyAsync(object sender, EventArgs e)
     {
-      await ExecuteBuildAsync(BuildOptions.Build | BuildOptions.Debug);
+      // No Build, no Deploy/Publish: just attach to what's already running/deployed.
+      await ExecuteBuildAsync(BuildOptions.Debug);
     }
 
     private void OnShowLog(object sender, EventArgs e)
@@ -142,10 +135,8 @@ namespace VsLinuxDebugger
         //// cmd.Text = $"{GetMenuText(cmd.CommandID.ID)} ({settings.HostIp})";
         //// cmd.Enabled = _extension.IsStartupProjectAvailable();
 
-        if (cmd.CommandID.ID == CommandIds.CmdShowLog
-          || cmd.CommandID.ID == CommandIds.CmdDebugOnly
-          ////|| cmd.CommandID.ID == CommandIds.CmdShowSettings
-          || cmd.CommandID.ID == CommandIds.CmdBuildDeployLaunch)
+        //// || cmd.CommandID.ID == CommandIds.CmdShowSettings
+        if (cmd.CommandID.ID == CommandIds.CmdShowLog)
         {
           cmd.Enabled = false;
         }
@@ -183,6 +174,7 @@ namespace VsLinuxDebugger
 
         UseCommandLineArgs = VsixPackage.ExperimentalOptions.UseCommandLineArgs,
         UseSelfContainedDeployment = VsixPackage.RemoteDebuggerOptions.UseSelfContainedDeployment,
+        RemoteRuntimeIdentifier = VsixPackage.RemoteDebuggerOptions.RemoteRuntimeIdentifier,
         //// UsePublish = Settings.UsePublish,
 
         UserPrivateKeyEnabled = VsixPackage.RemoteCredentialsOptions.UserPrivateKeyEnabled,

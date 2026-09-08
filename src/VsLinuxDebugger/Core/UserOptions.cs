@@ -37,6 +37,10 @@
     /// (i.e. a self-contained/AOT publish) instead of via `dotnet &lt;assembly&gt;.dll`.</summary>
     public bool UseSelfContainedDeployment { get; set; } = false;
 
+    /// <summary>.NET Runtime Identifier to publish for when <see cref="UseSelfContainedDeployment"/>
+    /// is enabled (i.e. `linux-arm64`).</summary>
+    public string RemoteRuntimeIdentifier { get; set; } = "linux-arm64";
+
     public string UserGroupName { get; set; }
     public string UserName { get; set; }
     public string UserPass { get; set; }

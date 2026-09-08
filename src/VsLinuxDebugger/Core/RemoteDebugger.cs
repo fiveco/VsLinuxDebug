@@ -7,6 +7,8 @@ using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using VsLinuxDebugger.Extensions;
+using Process = System.Diagnostics.Process;
+using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
 namespace VsLinuxDebugger.Core
 {
@@ -69,6 +71,15 @@ namespace VsLinuxDebugger.Core
           }
         }
 
+        if (_options.UseSelfContainedDeployment && buildOptions.HasFlag(BuildOptions.Deploy))
+        {
+          if (!await PublishAsync())
+          {
+            Logger.Output("Publish was not successful.");
+            return false;
+          }
+        }
+
         var remoteInfo = GetRemoteConnectionInfo();
 
         using (var ssh = new SshTool(remoteInfo))
@@ -97,7 +108,11 @@ namespace VsLinuxDebugger.Core
               await ssh.BashAsync($"sudo /usr/bin/systemctl stop {_options.RemoteServiceName}.service");
             }
 
-            await ssh.UploadFilesAsync(_launchBuilder.OutputDirFullPath, _launchBuilder.RemoteDeployProjectFolder);
+            var uploadFromDir = _options.UseSelfContainedDeployment
+              ? _launchBuilder.PublishDirFullPath
+              : _launchBuilder.OutputDirFullPath;
+
+            await ssh.UploadFilesAsync(uploadFromDir, _launchBuilder.RemoteDeployProjectFolder);
 
             if (_options.UseSelfContainedDeployment)
             {
@@ -135,13 +150,29 @@ namespace VsLinuxDebugger.Core
             //ssh.BashStream($"dotnet \"{_launchBuilder.RemoteDeployAssemblyFilePath}\"");
           }
 
-          if (buildOptions.HasFlag(BuildOptions.Debug) && buildOptions.HasFlag(BuildOptions.Launch))
+          if (buildOptions.HasFlag(BuildOptions.Debug))
           {
-            ; // TODO: Find ProcId and set Launch.json to `Attach`
-          }
-          else if (buildOptions.HasFlag(BuildOptions.Debug))
-          {
-            BuildDebugAttacher();
+            if (hasRemoteService)
+            {
+              // The service is already running (started above); attach to that exact
+              // process instead of launching a second, unmanaged instance of it -- a
+              // launched instance would not inherit the service's EnvironmentFile and
+              // ambient capabilities, and would leave two copies of the program running.
+              var mainPid = (await ssh.BashAsync($"systemctl show {_options.RemoteServiceName}.service --property=MainPID --value")).Trim();
+
+              if (int.TryParse(mainPid, out var pid) && pid > 0)
+              {
+                BuildDebugAttacher(pid);
+              }
+              else
+              {
+                Logger.Output($"Could not determine the running PID of '{_options.RemoteServiceName}.service' (got '{mainPid}'). Is it actually running?");
+              }
+            }
+            else
+            {
+              BuildDebugAttacher();
+            }
           }
         }
 
@@ -207,14 +238,68 @@ namespace VsLinuxDebugger.Core
       //// BuildEvents.OnBuildProjConfigDone -= BuildEvents_OnBuildProjConfigDone;
     }
 
+    /// <summary>Runs `dotnet publish` for <see cref="UserOptions.RemoteRuntimeIdentifier"/> into
+    /// <see cref="LaunchBuilder.PublishDirFullPath"/>. A plain build's output folder does not
+    /// reliably match what gets deployed once a project targets a runtime identifier (the SDK
+    /// nests RID-specific output under an extra subfolder, and its exact shape isn't something
+    /// this extension should have to keep guessing) -- publishing directly to a known, flat
+    /// folder sidesteps that entirely, the same way `dotnet publish -o <dir>` does when run by hand.</summary>
+    /// <returns>True if `dotnet publish` exited successfully.</returns>
+    private async Task<bool> PublishAsync()
+    {
+      if (Directory.Exists(_launchBuilder.PublishDirFullPath))
+        Directory.Delete(_launchBuilder.PublishDirFullPath, recursive: true);
+
+      var args = $"publish \"{_launchBuilder.ProjectFileFullPath}\" " +
+        $"-c \"{_launchBuilder.ProjectConfigName}\" " +
+        $"-r \"{_options.RemoteRuntimeIdentifier}\" " +
+        $"--self-contained true " +
+        $"-o \"{_launchBuilder.PublishDirFullPath}\"";
+
+      Logger.Output($"PUBLISH> dotnet {args}");
+
+      var startInfo = new ProcessStartInfo("dotnet", args)
+      {
+        UseShellExecute = false,
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        CreateNoWindow = true,
+        WorkingDirectory = Path.GetDirectoryName(_launchBuilder.ProjectFileFullPath),
+      };
+
+      using (var process = new Process { StartInfo = startInfo })
+      {
+        process.Start();
+
+        var stdOutTask = process.StandardOutput.ReadToEndAsync();
+        var stdErrTask = process.StandardError.ReadToEndAsync();
+
+        await Task.Run(() => process.WaitForExit());
+
+        var stdOut = await stdOutTask;
+        var stdErr = await stdErrTask;
+
+        if (!string.IsNullOrWhiteSpace(stdOut))
+          Logger.Output(stdOut);
+        if (!string.IsNullOrWhiteSpace(stdErr))
+          Logger.Output(stdErr);
+
+        return process.ExitCode == 0;
+      }
+    }
+
     /// <summary>
     /// Start debugging using the remote visual studio server adapter
     /// </summary>
-    private void BuildDebugAttacher()
+    /// <param name="attachToPid">When set, attach to this already-running remote process
+    /// instead of launching a new one.</param>
+    private void BuildDebugAttacher(int? attachToPid = null)
     {
       ////_launchJsonPath = _launchBuilder.GenerateLaunchJson();
 
-      _launchJsonPath = _launchBuilder.GenerateLaunchJson(vsdbgLogging: true);
+      _launchJsonPath = attachToPid.HasValue
+        ? _launchBuilder.GenerateAttachLaunchJson(attachToPid.Value, vsdbgLogging: true)
+        : _launchBuilder.GenerateLaunchJson(vsdbgLogging: true);
       if (string.IsNullOrEmpty(_launchJsonPath))
       {
         Logger.Output("Could not generate 'launch.json'. Potential folder creation permissions in project's output directory.");

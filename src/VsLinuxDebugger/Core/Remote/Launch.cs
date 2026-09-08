@@ -47,6 +47,19 @@ namespace VsLinuxDebugger.Core.Remote
       };
     }
 
+    /// <summary>Creates a launch.json that attaches to an already-running remote process,
+    /// instead of launching a new one. Use this for a debuggee managed by something else
+    /// (i.e. a systemd service), so the debugger attaches to that exact process rather than
+    /// starting a second, unmanaged instance alongside it.</summary>
+    /// <param name="processId">Remote process ID to attach to.</param>
+    public static Launch CreateAttach(int processId)
+    {
+      var launch = new Launch(program: null, args: null, remoteOutputFolder: null);
+      launch.Configurations[0].Request = "attach";
+      launch.Configurations[0].ProcessId = processId;
+      return launch;
+    }
+
     public string Version => "0.2.0";
 
     public string Adapter { get; set; }

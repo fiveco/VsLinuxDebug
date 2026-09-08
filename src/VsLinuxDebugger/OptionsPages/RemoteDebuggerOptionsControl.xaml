@@ -81,6 +81,13 @@
                        Text="Launch the deployed program directly as a native executable instead of via 'dotnet &lt;assembly&gt;.dll'. Use this when the project is published self-contained (or AOT) for the remote machine's runtime identifier." />
           </StackPanel>
 
+          <StackPanel Style="{StaticResource FieldRowStyle}">
+            <Label Content="Remote Runtime Identifier" Style="{StaticResource FieldLabelStyle}" />
+            <TextBox Text="{Binding RemoteRuntimeIdentifier, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
+            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
+                       Text="The .NET Runtime Identifier (RID) to publish for when 'Use Self-Contained Deployment' is enabled, matching the remote machine's OS/architecture (i.e. `linux-arm64`, `linux-x64`, `linux-arm`)." />
+          </StackPanel>
+
         </StackPanel>
       </GroupBox>
     </StackPanel>

@@ -35,7 +35,11 @@ namespace VsLinuxDebugger.Core.Remote
 
     /// <summary>Break immediately when the program launches.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool StopAtEntry { get; set; } 
+    public bool StopAtEntry { get; set; }
+
+    /// <summary>Remote process ID to attach to. Only used when <see cref="Request"/> is "attach".</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int? ProcessId { get; set; }
 
     /// <summary>What kind of console to use. For example, 'internalConsole', 'integratedTerminal', or 'externalTerminal'.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

@@ -87,36 +87,21 @@
         <Icon guid="DeployAndDebug_16x" id="imgDeployAndDebug" />
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
-        <!--<CommandFlag>DefaultDisabled</CommandFlag>-->
         <Strings>
-          <ButtonText>Build, Deploy and Debug (experimental)</ButtonText>
+          <ButtonText>Build, Deploy and Debug</ButtonText>
         </Strings>
       </Button>
 
-      <Button guid="GuidLinuxDebugerMenu" id="CmdBuildDeployLaunch" priority="0x0402" type="Button">
-        <Parent guid="GuidLinuxDebugerMenu" id="RemoteMainMenuGroupLevel1" />
-        <Icon guid="DebugOnly_16x" id="imgDebugOnly" />
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>TextChanges</CommandFlag>
-        <CommandFlag>DefaultDisabled</CommandFlag>
-        <!--<CommandFlag>DefaultDisabled</CommandFlag>-->
-        <Strings>
-          <ButtonText>Build, Deploy and Launch (experimental)</ButtonText>
-        </Strings>
-      </Button>
-
-      <!--
-      Allows user to debug again without having to redeploy.
+      <!-- Attach to the debuggee without rebuilding/redeploying it. -->
       <Button guid="GuidLinuxDebugerMenu" id="CmdDebugOnly" priority="0x0403" type="Button">
         <Parent guid="GuidLinuxDebugerMenu" id="RemoteMainMenuGroupLevel1" />
         <Icon guid="DebugOnly_16x" id="imgDebugOnly" />
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>Debug only</ButtonText>
+          <ButtonText>Attach Only (no build/deploy)</ButtonText>
         </Strings>
       </Button>
-      -->
 
       <!--
       TODO: Publish & Publish and Debug
@@ -183,7 +168,6 @@
       <IDSymbol name="CmdDebugOnly" value="0x1003" />
       <IDSymbol name="CmdOpenLogs" value="0x1004" />
       <IDSymbol name="CmdOpenSettings" value="0x1005" />
-      <IDSymbol name="CmdBuildDeployLaunch" value="0x1006" />      
     </GuidSymbol>
 
     <GuidSymbol name="DeployAndDebug_16x" value="{B3A9DD89-C898-4AFE-AC48-3A4C84122475}">
