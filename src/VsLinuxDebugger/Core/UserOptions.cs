@@ -14,6 +14,9 @@
     public bool RemoteDebugDisplayGui { get; set; }
     public string RemoteDebugDisplayNumber { get; set; }
     public string RemoteDeployBasePath { get; set; }
+
+    /// <summary>Environment variables to pass to the debuggee, one `KEY=VALUE` pair per line.</summary>
+    public string RemoteEnvironmentVariables { get; set; }
     /// <summary>Full path to `dotnet` executable.</summary>
     public string RemoteDotNetPath { get; set; }
     /// <summary>Base path to VSDBG (i.e. `~/.vsdbg`).</summary>

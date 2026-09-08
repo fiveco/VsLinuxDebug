@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using EnvDTE;
@@ -107,7 +108,7 @@ namespace VsLinuxDebugger.Core
           program,
           args,
           RemoteDeployProjectFolder,
-          default,
+          ParseEnvironmentVariables(_opts.RemoteEnvironmentVariables),
           false)
       {
         Adapter = adapter,
@@ -230,6 +231,37 @@ namespace VsLinuxDebugger.Core
       }
 
       return (adapter, adapterArgs);
+    }
+
+    /// <summary>Parses `KEY=VALUE` pairs (one per line) into a dictionary for `launch.json`'s `env`.</summary>
+    /// <param name="rawEnvVariables">Newline-separated `KEY=VALUE` pairs.</param>
+    /// <returns>Dictionary of environment variables, or null if none were provided.</returns>
+    private Dictionary<string, string> ParseEnvironmentVariables(string rawEnvVariables)
+    {
+      if (string.IsNullOrWhiteSpace(rawEnvVariables))
+        return null;
+
+      var env = new Dictionary<string, string>();
+
+      foreach (var line in rawEnvVariables.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+      {
+        var trimmedLine = line.Trim();
+        if (trimmedLine.Length == 0 || trimmedLine.StartsWith("#"))
+          continue;
+
+        var separatorIndex = trimmedLine.IndexOf('=');
+        if (separatorIndex <= 0)
+        {
+          Logger.Output($"Ignoring malformed environment variable line: '{trimmedLine}'");
+          continue;
+        }
+
+        var key = trimmedLine.Substring(0, separatorIndex).Trim();
+        var value = trimmedLine.Substring(separatorIndex + 1).Trim();
+        env[key] = value;
+      }
+
+      return env.Count > 0 ? env : null;
     }
 
     /// <summary>Attempt to get the extension's local directory.</summary>

@@ -22,6 +22,14 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     public string RemoteDeployBasePath { get; set; } = $"./VSLinuxDbg"; // "LinuxDbg"
 
     [Category(RemoteDebugger)]
+    [DisplayName("Environment Variables")]
+    [Description(
+      "Environment variables passed to the debuggee, one 'KEY=VALUE' pair per line. " +
+      "Useful when the program reads required configuration from the environment " +
+      "(i.e. values normally supplied by systemd's EnvironmentFile).")]
+    public string RemoteEnvironmentVariables { get; set; } = string.Empty;
+
+    [Category(RemoteDebugger)]
     [DisplayName(".NET executable")]
     [Description("Path of the .NET executable on remote machine. (Samples: `dotnet`, `~/.dotnet/dotnet`)")]
     public string RemoteDotNetPath { get; set; } = Constants.DefaultDotNetPath;

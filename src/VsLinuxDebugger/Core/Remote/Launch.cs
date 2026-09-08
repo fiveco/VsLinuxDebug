@@ -8,7 +8,7 @@ namespace VsLinuxDebugger.Core.Remote
     private string _remoteDotNetPath;
     private string[] _args;
     private string _remoteOutputFolder;
-    private string _environmentVariables;
+    private Dictionary<string, string> _environmentVariables;
     private bool _stopAtEntry;
 
     /// <summary>Launch JSON class</summary>
@@ -16,7 +16,7 @@ namespace VsLinuxDebugger.Core.Remote
     /// <param name="remoteAppFileName">Name of app(.dll) or full path on remote machine.</param>
     /// <param name="remoteOutputFolder">Working directory (CWD) where app resides.</param>
     /// <param name="envVariables">Custom environment variables.</param>
-    public Launch(string dotNetPath, string remoteAppFileName, string remoteOutputFolder, string envVariables = default, bool stopAtEntry = false)
+    public Launch(string dotNetPath, string remoteAppFileName, string remoteOutputFolder, Dictionary<string, string> envVariables = default, bool stopAtEntry = false)
       : this(dotNetPath, new[] { remoteAppFileName }, remoteOutputFolder, envVariables, stopAtEntry)
     {
     }
@@ -26,7 +26,7 @@ namespace VsLinuxDebugger.Core.Remote
     /// <param name="args">Arguments passed to <paramref name="program"/> (i.e. the assembly path for a framework-dependent deployment).</param>
     /// <param name="remoteOutputFolder">Working directory (CWD) where app resides.</param>
     /// <param name="envVariables">Custom environment variables.</param>
-    public Launch(string program, string[] args, string remoteOutputFolder, string envVariables = default, bool stopAtEntry = false)
+    public Launch(string program, string[] args, string remoteOutputFolder, Dictionary<string, string> envVariables = default, bool stopAtEntry = false)
     {
       _remoteDotNetPath = program;
       _args = args;
