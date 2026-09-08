@@ -163,10 +163,17 @@ namespace VsLinuxDebugger.Core
         {
           Logger.Output($"SSH configuring private key connection...");
 
-          if (string.IsNullOrEmpty(_info.PrivateKeyPassword))
-            keyFile = new PrivateKeyFile(_info.PrivateKeyPath);
+          // OpenSSH convention: a CA-signed certificate is a sibling file named
+          // "<private key path>-cert.pub" (i.e. "id_ed25519" + "id_ed25519-cert.pub").
+          var certificatePath = $"{_info.PrivateKeyPath}-cert.pub";
+          if (!File.Exists(certificatePath))
+            certificatePath = null;
           else
-            keyFile = new PrivateKeyFile(_info.PrivateKeyPath, _info.PrivateKeyPassword);
+            Logger.Output($"SSH found matching certificate '{certificatePath}'.");
+
+          keyFile = string.IsNullOrEmpty(_info.PrivateKeyPassword)
+            ? new PrivateKeyFile(_info.PrivateKeyPath, null, certificatePath)
+            : new PrivateKeyFile(_info.PrivateKeyPath, _info.PrivateKeyPassword, certificatePath);
 
           /**
           // adds rsa-sha2-256
@@ -212,8 +219,8 @@ namespace VsLinuxDebugger.Core
       catch (Exception)
       {
         _scp = (_info.PrivateKeyEnabled && File.Exists(_info.PrivateKeyPath))
-          ? new ScpClient(connInfo)
-          : new ScpClient(_info.Host, _info.Port, _info.UserName, _info.UserPass);
+          ? new ScpClient(connInfo, RemotePathTransformation.ShellQuote)
+          : new ScpClient(_info.Host, _info.Port, _info.UserName, _info.UserPass, RemotePathTransformation.ShellQuote);
 
         _scp.Connect();
       }
