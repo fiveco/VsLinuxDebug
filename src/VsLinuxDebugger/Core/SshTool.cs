@@ -326,7 +326,7 @@ namespace VsLinuxDebugger.Core
         var success = await PayloadCompressAndUploadAsync(_sftp, srcDirInfo, destTarGz);
 
         // Decompress file
-        await PayloadDecompressAsync(targetFolder, destTarGz, false);
+        await PayloadDecompressAsync(targetFolder, destTarGz, true);
 
         Logger.Output($"Upload completed {(success ? "successfully" : "with failure")}.");
 

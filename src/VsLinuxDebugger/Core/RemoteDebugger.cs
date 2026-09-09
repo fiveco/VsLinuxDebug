@@ -130,12 +130,13 @@ namespace VsLinuxDebugger.Core
           ////  // This is PUBLISH not our 'deployer'
           ////}
 
-          if (hasRemoteService && buildOptions.HasFlag(BuildOptions.Deploy) &&
-            (buildOptions.HasFlag(BuildOptions.Launch) || buildOptions.HasFlag(BuildOptions.Debug)))
+          if (hasRemoteService && buildOptions.HasFlag(BuildOptions.Deploy))
           {
-            // Only (re)start the service after we've actually redeployed it. For
-            // Attach Only (Debug without Deploy) we attach to whatever is already
-            // running instead of bouncing the service and losing its current state.
+            // Always bring the service back up after we've redeployed it, whether or
+            // not we're about to attach/launch -- it was running before Deploy stopped
+            // it above, so "Build and Deploy" alone should leave it running with the
+            // new binary rather than stopped. For Attach Only (Debug without Deploy)
+            // we attach to whatever is already running instead of bouncing the service.
             //
             // Clear any prior failure count first: a unit that hit its systemd restart
             // rate limit (StartLimitBurst) will otherwise refuse to start again.
