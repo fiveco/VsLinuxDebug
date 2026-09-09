@@ -19,7 +19,7 @@
     <!-- Single source of truth for the extension's version. Also drives AssemblyInfo.cs
          (see GenerateAssemblyVersionInfo target below) and source.extension.vsixmanifest
          (via the GetVsixVersion target, referenced as |%CurrentProject%;GetVsixVersion|). -->
-    <VsixVersion>3.8.0</VsixVersion>
+    <VsixVersion>3.8.1</VsixVersion>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <LangVersion>8.0</LangVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
@@ -68,7 +68,6 @@
     <Compile Include="Extensions\SolutionExtension.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="OptionsPages\InverseBooleanToVisibilityConverter.cs" />
-    <Compile Include="OptionsPages\MultilineTextBoxBehavior.cs" />
     <Compile Include="OptionsPages\MultilineEditDialog.xaml.cs">
       <DependentUpon>MultilineEditDialog.xaml</DependentUpon>
     </Compile>
