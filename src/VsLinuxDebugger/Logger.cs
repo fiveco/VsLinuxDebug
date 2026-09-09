@@ -41,7 +41,7 @@ namespace VsLinuxDebugger
       IServiceProvider provider,
       OutputWindowType outputType = OutputWindowType.Debug,
       bool autoSwitchToLinuxDbgOutput = true,
-      string name = "FCO Linux Debugger")
+      string name = "Linux Debugger")
     {
       _provider = provider;
       _outputType = outputType;

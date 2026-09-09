@@ -25,11 +25,11 @@ namespace VsLinuxDebugger
   [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
   [Guid(DebuggerPackage.PackageGuidString)]
   [ProvideMenuResource("Menus.ctmenu", 1)]
-  [ProvideOptionPage(typeof(RemoteHostOptionsPage), "FCO Linux Debugger", "Remote Host", 0, 0, true, Sort = 1)]
-  [ProvideOptionPage(typeof(RemoteCredentialsOptionsPage), "FCO Linux Debugger", "Remote Credentials", 0, 0, true, Sort = 2)]
-  [ProvideOptionPage(typeof(RemoteDebuggerOptionsPage), "FCO Linux Debugger", "Remote Debugger", 0, 0, true, Sort = 3)]
-  [ProvideOptionPage(typeof(RemoteLaunchOptionsPage), "FCO Linux Debugger", "Remote Launch", 0, 0, true, Sort = 4)]
-  [ProvideOptionPage(typeof(LocalOptionsPage), "FCO Linux Debugger", "Local", 0, 0, true, Sort = 5)]
+  [ProvideOptionPage(typeof(RemoteHostOptionsPage), "Linux Debugger", "Remote Host", 0, 0, true, Sort = 1)]
+  [ProvideOptionPage(typeof(RemoteCredentialsOptionsPage), "Linux Debugger", "Remote Credentials", 0, 0, true, Sort = 2)]
+  [ProvideOptionPage(typeof(RemoteDebuggerOptionsPage), "Linux Debugger", "Remote Debugger", 0, 0, true, Sort = 3)]
+  [ProvideOptionPage(typeof(RemoteLaunchOptionsPage), "Linux Debugger", "Remote Launch", 0, 0, true, Sort = 4)]
+  [ProvideOptionPage(typeof(LocalOptionsPage), "Linux Debugger", "Local", 0, 0, true, Sort = 5)]
   public sealed partial class DebuggerPackage : AsyncPackage
   {
     /// <summary>Package GUID string.</summary>

@@ -38,8 +38,8 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>FCO Linux &amp;Debugger</ButtonText>
-          <CommandName>FCO Linux &amp;Debugger</CommandName>
+          <ButtonText>Linux &amp;Debugger</ButtonText>
+          <CommandName>Linux &amp;Debugger</CommandName>
         </Strings>
       </Menu>
     </Menus>

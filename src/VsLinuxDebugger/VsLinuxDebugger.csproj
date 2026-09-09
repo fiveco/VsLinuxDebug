@@ -19,7 +19,7 @@
     <!-- Single source of truth for the extension's version. Also drives AssemblyInfo.cs
          (see GenerateAssemblyVersionInfo target below) and source.extension.vsixmanifest
          (via the GetVsixVersion target, referenced as |%CurrentProject%;GetVsixVersion|). -->
-    <VsixVersion>3.8.1</VsixVersion>
+    <VsixVersion>3.0.0</VsixVersion>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <LangVersion>8.0</LangVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
@@ -190,10 +190,6 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Resources\TuxDebug.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Resources\FiveCoLogo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

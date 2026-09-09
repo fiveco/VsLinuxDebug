@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FCO Linux Debugger")]
+[assembly: AssemblyTitle("VS Linux Debugger")]
 [assembly: AssemblyDescription("Remote system deployment and debugger for Visual Studio IDE")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("FiveCo")]
-[assembly: AssemblyProduct("FCO Linux Debugger")]
-[assembly: AssemblyCopyright("Copyright FiveCo")]
+[assembly: AssemblyCompany("Xeno Innovations, Inc.")]
+[assembly: AssemblyProduct("VS Linux Debugger")]
+[assembly: AssemblyCopyright("Copyright 2022 Xeno Innovations, Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
