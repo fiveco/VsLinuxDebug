@@ -116,23 +116,16 @@ namespace VsLinuxDebugger.Core
 
           cancellationToken.ThrowIfCancellationRequested();
 
-          var hasRemoteService = !string.IsNullOrWhiteSpace(_options.RemoteServiceName);
-
           if (buildOptions.HasFlag(BuildOptions.Deploy))
           {
-            // Only touch the deployment folder (and the service holding files open in
-            // it) when we're actually about to overwrite it -- doing this unconditionally
-            // used to delete the executable backing an already-running attached process
-            // on every "Attach Only" run, and restart the service even when unchanged.
+            // Only touch the deployment folder (and run the pre/post-deploy commands) when
+            // we're actually about to overwrite it -- doing this unconditionally used to
+            // delete the executable backing an already-running attached process on every
+            // "Attach Only" run, and re-run the post-deploy commands even when unchanged.
             await ssh.MakeDeploymentFolderAsync(_options.RemoteDeployBasePath);
             await ssh.CleanFolderAsync(_launchBuilder.RemoteDeployProjectFolder);
 
-            if (hasRemoteService)
-            {
-              // Stop the supervised service so it isn't holding/re-launching the files
-              // we're about to overwrite.
-              await ssh.BashAsync($"sudo /usr/bin/systemctl stop {_options.RemoteServiceName}.service");
-            }
+            await RunConfiguredCommandsAsync(ssh, _options.RemotePreDeployCommands);
 
             var uploadFromDir = _options.UseSelfContainedDeployment
               ? _launchBuilder.PublishDirFullPath
@@ -145,6 +138,8 @@ namespace VsLinuxDebugger.Core
               // Transfer (tar/scp) from Windows does not preserve the exec bit.
               await ssh.BashAsync($"chmod +x \"{_launchBuilder.RemoteDeployExecutableFilePath}\"");
             }
+
+            await RunConfiguredCommandsAsync(ssh, _options.RemotePostDeployCommands);
           }
           ////else if (buildOptions.HasFlag(BuildOptions.Publish))
           ////{
@@ -153,22 +148,8 @@ namespace VsLinuxDebugger.Core
 
           cancellationToken.ThrowIfCancellationRequested();
 
-          if (hasRemoteService && buildOptions.HasFlag(BuildOptions.Deploy))
-          {
-            // Always bring the service back up after we've redeployed it, whether or
-            // not we're about to attach/launch -- it was running before Deploy stopped
-            // it above, so "Build and Deploy" alone should leave it running with the
-            // new binary rather than stopped. For Attach Only (Debug without Deploy)
-            // we attach to whatever is already running instead of bouncing the service.
-            //
-            // Clear any prior failure count first: a unit that hit its systemd restart
-            // rate limit (StartLimitBurst) will otherwise refuse to start again.
-            await ssh.BashAsync($"sudo /usr/bin/systemctl reset-failed {_options.RemoteServiceName}.service");
-            await ssh.BashAsync($"sudo /usr/bin/systemctl start {_options.RemoteServiceName}.service");
-          }
-
           // The following replaces -->> if (_options.RemoteDebugDisplayGui)
-          if (buildOptions.HasFlag(BuildOptions.Launch) && !hasRemoteService)
+          if (buildOptions.HasFlag(BuildOptions.Launch) && !_options.AttachToRunningProcess)
           {
             var launchTarget = _options.UseSelfContainedDeployment
               ? $"\"{_launchBuilder.RemoteDeployExecutableFilePath}\""
@@ -188,13 +169,14 @@ namespace VsLinuxDebugger.Core
 
           if (buildOptions.HasFlag(BuildOptions.Debug))
           {
-            if (hasRemoteService)
+            if (_options.AttachToRunningProcess)
             {
-              // The service is already running (started above); attach to that exact
-              // process instead of launching a second, unmanaged instance of it -- a
-              // launched instance would not inherit the service's EnvironmentFile and
-              // ambient capabilities, and would leave two copies of the program running.
-              var mainPid = (await ssh.BashAsync($"systemctl show {_options.RemoteServiceName}.service --property=MainPID --value")).Trim();
+              // The debuggee is started/supervised externally (i.e. by systemd via the
+              // configured pre/post-deploy commands); attach to that exact process instead
+              // of launching a second, unmanaged instance of it -- a launched instance would
+              // not inherit the supervisor's EnvironmentFile and ambient capabilities, and
+              // would leave two copies of the program running.
+              var mainPid = (await ssh.BashAsync(_options.RemotePidCommand)).Trim();
 
               if (int.TryParse(mainPid, out var pid) && pid > 0)
               {
@@ -202,7 +184,7 @@ namespace VsLinuxDebugger.Core
               }
               else
               {
-                Logger.Output($"Could not determine the running PID of '{_options.RemoteServiceName}.service' (got '{mainPid}'). Is it actually running?");
+                Logger.Output($"Could not determine the running PID via '{_options.RemotePidCommand}' (got '{mainPid}'). Is the process actually running?");
               }
             }
             else
@@ -286,6 +268,21 @@ namespace VsLinuxDebugger.Core
         // BuildEvents_OnBuildDone still fires after a cancel; unblock the awaiter either way.
         _buildTask?.TrySetResult(false);
       });
+    }
+
+    /// <summary>Runs each non-blank line of <paramref name="commands"/> as a separate shell
+    /// command on the remote machine, in order.</summary>
+    private async Task RunConfiguredCommandsAsync(SshTool ssh, string commands)
+    {
+      if (string.IsNullOrWhiteSpace(commands))
+        return;
+
+      foreach (var line in commands.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+      {
+        var command = line.Trim();
+        if (command.Length > 0)
+          await ssh.BashAsync(command);
+      }
     }
 
     private void BuildCleanup()

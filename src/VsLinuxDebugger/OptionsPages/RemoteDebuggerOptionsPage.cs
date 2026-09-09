@@ -10,7 +10,10 @@ namespace Xeno.VsLinuxDebug.OptionsPages
   {
     private string _remoteDeployBasePath = "./VSLinuxDbg";
     private string _remoteEnvironmentVariables = string.Empty;
-    private string _remoteServiceName = string.Empty;
+    private string _remotePreDeployCommands = string.Empty;
+    private string _remotePostDeployCommands = string.Empty;
+    private bool _attachToRunningProcess = false;
+    private string _remotePidCommand = string.Empty;
     private string _remoteDotNetPath = Constants.DefaultDotNetPath;
     private string _remoteVsDbgRootPath = Constants.DefaultVsdbgBasePath;
     private bool _useSudoForDebugger = false;
@@ -44,18 +47,54 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     }
 
     [Category("Remote Debugger")]
-    [DisplayName("Service Name (optional)")]
+    [DisplayName("Pre-Deploy Commands")]
     [Description(
-      "Name of a systemd unit (without '.service') that normally runs the debuggee, i.e. " +
-      "'myapp' for 'myapp.service'. When set, it is stopped (via 'sudo systemctl stop " +
-      "<name>.service') before files are deployed, and started (via 'sudo systemctl start " +
-      "<name>.service') before launch/attach, so the debuggee isn't fought over by a " +
-      "supervisor restarting it underneath the debugger. Requires the configured user to " +
-      "be able to run systemctl on this unit via sudo. Leave blank to disable.")]
-    public string RemoteServiceName
+      "Shell commands run on the remote machine before files are uploaded, one per line " +
+      "(only when 'Deploy' runs). Use this to stop whatever is holding the deployed files " +
+      "open, i.e. 'sudo systemctl stop myapp.service'. Leave blank to run nothing.")]
+    public string RemotePreDeployCommands
     {
-      get => _remoteServiceName;
-      set { _remoteServiceName = value; OnPropertyChanged(nameof(RemoteServiceName)); }
+      get => _remotePreDeployCommands;
+      set { _remotePreDeployCommands = value; OnPropertyChanged(nameof(RemotePreDeployCommands)); }
+    }
+
+    [Category("Remote Debugger")]
+    [DisplayName("Post-Deploy Commands")]
+    [Description(
+      "Shell commands run on the remote machine after files are uploaded, one per line " +
+      "(only when 'Deploy' runs). Use this to bring the debuggee back up under its normal " +
+      "supervised environment, i.e. 'sudo systemctl reset-failed myapp.service' and " +
+      "'sudo systemctl start myapp.service'. Leave blank to run nothing.")]
+    public string RemotePostDeployCommands
+    {
+      get => _remotePostDeployCommands;
+      set { _remotePostDeployCommands = value; OnPropertyChanged(nameof(RemotePostDeployCommands)); }
+    }
+
+    [Category("Remote Debugger")]
+    [DisplayName("Attach to Already-Running Process")]
+    [Description(
+      "The debuggee is started/supervised externally (i.e. by systemd via the commands " +
+      "above), so debugging must attach to its existing process instead of vsdbg launching " +
+      "a new one -- a launched instance would not inherit the supervisor's EnvironmentFile " +
+      "or ambient capabilities, and would leave two copies of the program running. When " +
+      "unchecked (default), vsdbg launches and owns the debuggee process itself.")]
+    public bool AttachToRunningProcess
+    {
+      get => _attachToRunningProcess;
+      set { _attachToRunningProcess = value; OnPropertyChanged(nameof(AttachToRunningProcess)); }
+    }
+
+    [Category("Remote Debugger")]
+    [DisplayName("PID Command")]
+    [Description(
+      "Shell command, run on the remote machine, whose output is the PID to attach to. " +
+      "Only used when 'Attach to Already-Running Process' is checked. Examples: " +
+      "'systemctl show myapp.service --property=MainPID --value', or 'pgrep -f myapp'.")]
+    public string RemotePidCommand
+    {
+      get => _remotePidCommand;
+      set { _remotePidCommand = value; OnPropertyChanged(nameof(RemotePidCommand)); }
     }
 
     [Category("Remote Debugger")]

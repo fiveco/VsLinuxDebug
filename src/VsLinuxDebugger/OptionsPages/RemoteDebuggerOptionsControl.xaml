@@ -38,10 +38,42 @@
           </StackPanel>
 
           <StackPanel Style="{StaticResource FieldRowStyle}">
-            <Label Content="Service Name (optional)" Style="{StaticResource FieldLabelStyle}" />
-            <TextBox Text="{Binding RemoteServiceName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
+            <Label Content="Pre-Deploy Commands" Style="{StaticResource FieldLabelStyle}" />
+            <TextBox Text="{Binding RemotePreDeployCommands, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource FieldTextBoxStyle}"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Auto"
+                     Height="70" />
             <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Name of a systemd unit (without '.service') that normally runs the debuggee, i.e. 'myapp' for 'myapp.service'. When set, it is stopped (via 'sudo systemctl stop &lt;name&gt;.service') before files are deployed, and started (via 'sudo systemctl start &lt;name&gt;.service') before launch/attach, so the debuggee isn't fought over by a supervisor restarting it underneath the debugger. Requires the configured user to be able to run systemctl on this unit via sudo. Leave blank to disable." />
+                       Text="Shell commands run on the remote machine before files are uploaded, one per line (only when 'Deploy' runs). Use this to stop whatever is holding the deployed files open, i.e. 'sudo systemctl stop myapp.service'. Leave blank to run nothing." />
+          </StackPanel>
+
+          <StackPanel Style="{StaticResource FieldRowStyle}">
+            <Label Content="Post-Deploy Commands" Style="{StaticResource FieldLabelStyle}" />
+            <TextBox Text="{Binding RemotePostDeployCommands, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource FieldTextBoxStyle}"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Auto"
+                     Height="70" />
+            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
+                       Text="Shell commands run on the remote machine after files are uploaded, one per line (only when 'Deploy' runs). Use this to bring the debuggee back up under its normal supervised environment, i.e. 'sudo systemctl reset-failed myapp.service' and 'sudo systemctl start myapp.service'. Leave blank to run nothing." />
+          </StackPanel>
+
+          <StackPanel Style="{StaticResource FieldRowStyle}">
+            <CheckBox Content="Attach to Already-Running Process"
+                       IsChecked="{Binding AttachToRunningProcess}"
+                       Style="{StaticResource FieldCheckBoxStyle}" />
+            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
+                       Text="The debuggee is started/supervised externally (i.e. by systemd via the commands above), so debugging must attach to its existing process instead of vsdbg launching a new one -- a launched instance would not inherit the supervisor's EnvironmentFile or ambient capabilities, and would leave two copies of the program running. When unchecked (default), vsdbg launches and owns the debuggee process itself." />
+          </StackPanel>
+
+          <StackPanel Style="{StaticResource FieldRowStyle}">
+            <Label Content="PID Command" Style="{StaticResource FieldLabelStyle}" />
+            <TextBox Text="{Binding RemotePidCommand, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
+            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
+                       Text="Shell command, run on the remote machine, whose output is the PID to attach to. Only used when 'Attach to Already-Running Process' is checked. Examples: 'systemctl show myapp.service --property=MainPID --value', or 'pgrep -f myapp'." />
           </StackPanel>
 
           <StackPanel Style="{StaticResource FieldRowStyle}">

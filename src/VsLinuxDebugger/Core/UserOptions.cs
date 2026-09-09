@@ -24,11 +24,22 @@
     /// <summary>Full path to `dotnet` executable.</summary>
     public string RemoteDotNetPath { get; set; }
 
-    /// <summary>Name of a systemd unit (without `.service`) that manages the debuggee on the
-    /// remote machine. When set, it is stopped before deploy and (re)started before
-    /// launch/attach, so the debuggee does not fight a supervisor restarting it underneath
-    /// the debugger. Leave blank to disable.</summary>
-    public string RemoteServiceName { get; set; }
+    /// <summary>Shell commands run on the remote machine before files are uploaded, one per
+    /// line, only when Deploy runs (i.e. stopping whatever supervises/holds the debuggee).</summary>
+    public string RemotePreDeployCommands { get; set; }
+
+    /// <summary>Shell commands run on the remote machine after files are uploaded, one per
+    /// line, only when Deploy runs (i.e. restarting a supervisor so it picks up the new build).</summary>
+    public string RemotePostDeployCommands { get; set; }
+
+    /// <summary>When enabled, the debuggee is presumed to be started/supervised externally, so
+    /// debugging attaches to its existing process (resolved via <see cref="RemotePidCommand"/>)
+    /// instead of vsdbg launching a new one.</summary>
+    public bool AttachToRunningProcess { get; set; } = false;
+
+    /// <summary>Shell command, run on the remote machine, whose output is the PID to attach to.
+    /// Only used when <see cref="AttachToRunningProcess"/> is enabled.</summary>
+    public string RemotePidCommand { get; set; }
     /// <summary>Base path to VSDBG (i.e. `~/.vsdbg`).</summary>
     public string RemoteVsDbgBasePath { get; set; }
     /// <summary>Full path to VS Debugger.</summary>

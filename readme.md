@@ -18,7 +18,7 @@ This fork exists to support debugging a self-contained ARM64 service running und
 * **Sudo-elevated debugger launch** — an opt-in setting launches `vsdbg` via a configurable `sudo` command, for debuggees running with elevated or ambient capabilities that the debugger must match to attach.
 * **Self-contained deployment** — an opt-in setting launches the deployed program directly as a native executable (self-contained/AOT publish) instead of via `dotnet <assembly>.dll`, with the executable bit restored after transfer (lost by default over tar/scp from Windows).
 * **Environment variables for the debuggee** — pass `KEY=VALUE` pairs through to the remote process, for programs that read required configuration from the environment.
-* **Systemd service integration** — an opt-in setting stops a named service before deploy and restarts it before debug/launch, so the debuggee runs under its normal supervised environment instead of a bare foreground process.
+* **Configurable pre/post-deploy commands and attach-to-running-process** — run arbitrary shell commands before/after each deploy (i.e. stopping/restarting a systemd service), and optionally attach the debugger to that already-running process (via a configurable PID-lookup command) instead of launching a new one, so the debuggee runs under its normal supervised environment.
 * **Modernized Options UI** — settings are split across 6 focused Tools > Options pages (Remote Host, Remote Credentials, Remote Debugger, Local, Display (X11), Experimental) built with a real WPF UI (checkboxes, dynamic show/hide for password vs. private-key fields) instead of a single page with a WinForms PropertyGrid.
 * Support for Visual Studio 2026 and newer .NET target frameworks (net8.0, net10.0) in the sample/test projects.
 
