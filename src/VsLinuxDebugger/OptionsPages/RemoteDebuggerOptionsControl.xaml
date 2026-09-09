@@ -22,65 +22,7 @@
             <Label Content="Upload to folder" Style="{StaticResource FieldLabelStyle}" />
             <TextBox Text="{Binding RemoteDeployBasePath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
             <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Folder for to transfer files to. For HOME folder, use './VSLinuxDbg' and not '~/VSLinuxDbg'" />
-          </StackPanel>
-
-          <StackPanel Style="{StaticResource FieldRowStyle}">
-            <Label Content="Environment Variables" Style="{StaticResource FieldLabelStyle}" />
-            <TextBox Text="{Binding RemoteEnvironmentVariables, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource FieldTextBoxStyle}"
-                     AcceptsReturn="True"
-                     TextWrapping="Wrap"
-                     VerticalScrollBarVisibility="Auto"
-                     Height="90" />
-            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Environment variables passed to the debuggee, one 'KEY=VALUE' pair per line. Useful when the program reads required configuration from the environment (i.e. values normally supplied by systemd's EnvironmentFile)." />
-          </StackPanel>
-
-          <StackPanel Style="{StaticResource FieldRowStyle}">
-            <Label Content="Pre-Deploy Commands" Style="{StaticResource FieldLabelStyle}" />
-            <TextBox Text="{Binding RemotePreDeployCommands, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource FieldTextBoxStyle}"
-                     AcceptsReturn="True"
-                     TextWrapping="Wrap"
-                     VerticalScrollBarVisibility="Auto"
-                     Height="70" />
-            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Shell commands run on the remote machine before files are uploaded, one per line (only when 'Deploy' runs). Use this to stop whatever is holding the deployed files open, i.e. 'sudo systemctl stop myapp.service'. Leave blank to run nothing." />
-          </StackPanel>
-
-          <StackPanel Style="{StaticResource FieldRowStyle}">
-            <Label Content="Post-Deploy Commands" Style="{StaticResource FieldLabelStyle}" />
-            <TextBox Text="{Binding RemotePostDeployCommands, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource FieldTextBoxStyle}"
-                     AcceptsReturn="True"
-                     TextWrapping="Wrap"
-                     VerticalScrollBarVisibility="Auto"
-                     Height="70" />
-            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Shell commands run on the remote machine after files are uploaded, one per line (only when 'Deploy' runs). Use this to bring the debuggee back up under its normal supervised environment, i.e. 'sudo systemctl reset-failed myapp.service' and 'sudo systemctl start myapp.service'. Leave blank to run nothing." />
-          </StackPanel>
-
-          <StackPanel Style="{StaticResource FieldRowStyle}">
-            <CheckBox Content="Attach to Already-Running Process"
-                       IsChecked="{Binding AttachToRunningProcess}"
-                       Style="{StaticResource FieldCheckBoxStyle}" />
-            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="The debuggee is started/supervised externally (i.e. by systemd via the commands above), so debugging must attach to its existing process instead of vsdbg launching a new one -- a launched instance would not inherit the supervisor's EnvironmentFile or ambient capabilities, and would leave two copies of the program running. When unchecked (default), vsdbg launches and owns the debuggee process itself." />
-          </StackPanel>
-
-          <StackPanel Style="{StaticResource FieldRowStyle}">
-            <Label Content="PID Command" Style="{StaticResource FieldLabelStyle}" />
-            <TextBox Text="{Binding RemotePidCommand, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
-            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Shell command, run on the remote machine, whose output is the PID to attach to. Only used when 'Attach to Already-Running Process' is checked. Examples: 'systemctl show myapp.service --property=MainPID --value', or 'pgrep -f myapp'." />
-          </StackPanel>
-
-          <StackPanel Style="{StaticResource FieldRowStyle}">
-            <Label Content=".NET executable" Style="{StaticResource FieldLabelStyle}" />
-            <TextBox Text="{Binding RemoteDotNetPath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
-            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Path of the .NET executable on remote machine. (Samples: `dotnet`, `~/.dotnet/dotnet`)" />
+                       Text="Folder files are deployed to, as-is. For HOME folder, use './VSLinuxDbg' and not '~/VSLinuxDbg'." />
           </StackPanel>
 
           <StackPanel Style="{StaticResource FieldRowStyle}">
@@ -91,33 +33,18 @@
           </StackPanel>
 
           <StackPanel Style="{StaticResource FieldRowStyle}">
-            <CheckBox Content="Use Sudo for Debugger"
-                       IsChecked="{Binding UseSudoForDebugger}"
-                       Style="{StaticResource FieldCheckBoxStyle}" />
-            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Launch VSDBG on the remote machine via the command in 'Sudo Command'. Use this when the debuggee process runs with elevated or ambient capabilities that the debugger must also hold in order to attach (i.e. ptrace requires the tracer's capabilities to be a superset of the tracee's). The configured user must be able to run the debugger path via sudo (passwordless or otherwise)." />
-          </StackPanel>
-
-          <StackPanel Style="{StaticResource FieldRowStyle}">
-            <Label Content="Sudo Command" Style="{StaticResource FieldLabelStyle}" />
-            <TextBox Text="{Binding SudoCommand, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
-            <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Command used to elevate the debugger when 'Use Sudo for Debugger' is enabled. '-E' preserves the environment (VSDBG needs it); '-n' fails fast instead of prompting for a password. (Default: `sudo -n -E`)" />
-          </StackPanel>
-
-          <StackPanel Style="{StaticResource FieldRowStyle}">
             <CheckBox Content="Use Self-Contained Deployment"
                        IsChecked="{Binding UseSelfContainedDeployment}"
                        Style="{StaticResource FieldCheckBoxStyle}" />
             <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Launch the deployed program directly as a native executable instead of via 'dotnet &lt;assembly&gt;.dll'. Use this when the project is published self-contained (or AOT) for the remote machine's runtime identifier." />
+                       Text="Publish and deploy a self-contained native executable instead of a plain 'dotnet &lt;assembly&gt;.dll' build." />
           </StackPanel>
 
           <StackPanel Style="{StaticResource FieldRowStyle}">
             <Label Content="Remote Runtime Identifier" Style="{StaticResource FieldLabelStyle}" />
             <TextBox Text="{Binding RemoteRuntimeIdentifier, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
             <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="The .NET Runtime Identifier (RID) to publish for when 'Use Self-Contained Deployment' is enabled, matching the remote machine's OS/architecture (i.e. `linux-arm64`, `linux-x64`, `linux-arm`)." />
+                       Text=".NET Runtime Identifier to publish for when Self-Contained Deployment is enabled, i.e. `linux-arm64`." />
           </StackPanel>
 
         </StackPanel>

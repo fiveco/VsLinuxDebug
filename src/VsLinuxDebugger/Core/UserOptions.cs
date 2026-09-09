@@ -21,9 +21,6 @@
 
     /// <summary>Environment variables to pass to the debuggee, one `KEY=VALUE` pair per line.</summary>
     public string RemoteEnvironmentVariables { get; set; }
-    /// <summary>Full path to `dotnet` executable.</summary>
-    public string RemoteDotNetPath { get; set; }
-
     /// <summary>Shell commands run on the remote machine before files are uploaded, one per
     /// line, only when Deploy runs (i.e. stopping whatever supervises/holds the debuggee).</summary>
     public string RemotePreDeployCommands { get; set; }

@@ -62,17 +62,13 @@ namespace VsLinuxDebugger.Core
     /// <summary>Project name (not always the same as AssemblyName). I.E. "Console App1"</summary>
     public string ProjectName { get; set; }
 
-    /// <summary>Full path to the remote assembly. (i.e. `/home/USER/VLSDbg/ConsoleApp1.dll`)</summary>
-    public string RemoteDeployAssemblyFilePath => LinuxPath.Combine(RemoteDeployProjectFolder, $"{AssemblyName}.dll");
-
-    /// <summary>Full path to the remote executable, for a self-contained deployment. (i.e. `/home/USER/VLSDbg/ConsoleApp1`)</summary>
+    /// <summary>Full path to the deployed native executable (always produced by `dotnet
+    /// publish`, even framework-dependent). (i.e. `/home/USER/VLSDbg/ConsoleApp1`)</summary>
     public string RemoteDeployExecutableFilePath => LinuxPath.Combine(RemoteDeployProjectFolder, AssemblyName);
 
     /// <summary>Folder files are deployed to. This is the configured deploy path itself
     /// (i.e. `/home/USER/VLSDbg`) -- no per-project subfolder is added.</summary>
     public string RemoteDeployProjectFolder => _opts.RemoteDeployBasePath;
-
-    public string RemoteDotNetPath => _opts.RemoteDotNetPath;
 
     public string RemoteHostIp => _opts.HostIp;
 
@@ -96,25 +92,11 @@ namespace VsLinuxDebugger.Core
 
       (adapter, adapterArgs) = GetAdapter(vsdbgLogging);
 
-      string program;
-      string[] args;
-
-      if (_opts.UseSelfContainedDeployment)
-      {
-        // Self-contained (or AOT) publish: launch the native executable directly.
-        program = RemoteDeployExecutableFilePath;
-        args = new string[0];
-      }
-      else
-      {
-        // Framework-dependent: launch via `dotnet <assembly>.dll`.
-        program = RemoteDotNetPath;
-        args = new[] { $"{AssemblyName}.dll" };
-      }
-
+      // Always deployed via `dotnet publish`, which generates a native apphost executable
+      // even when framework-dependent -- so launch it directly, never via `dotnet <dll>`.
       var obj = new Launch(
-          program,
-          args,
+          RemoteDeployExecutableFilePath,
+          new string[0],
           RemoteDeployProjectFolder,
           ParseEnvironmentVariables(_opts.RemoteEnvironmentVariables),
           false)

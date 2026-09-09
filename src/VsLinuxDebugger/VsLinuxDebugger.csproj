@@ -19,7 +19,7 @@
     <!-- Single source of truth for the extension's version. Also drives AssemblyInfo.cs
          (see GenerateAssemblyVersionInfo target below) and source.extension.vsixmanifest
          (via the GetVsixVersion target, referenced as |%CurrentProject%;GetVsixVersion|). -->
-    <VsixVersion>3.5.0</VsixVersion>
+    <VsixVersion>3.6.0</VsixVersion>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <LangVersion>8.0</LangVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
@@ -80,13 +80,13 @@
     <Compile Include="OptionsPages\RemoteDebuggerOptionsControl.xaml.cs">
       <DependentUpon>RemoteDebuggerOptionsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OptionsPages\RemoteLaunchOptionsPage.cs" />
+    <Compile Include="OptionsPages\RemoteLaunchOptionsControl.xaml.cs">
+      <DependentUpon>RemoteLaunchOptionsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OptionsPages\LocalOptionsPage.cs" />
     <Compile Include="OptionsPages\LocalOptionsControl.xaml.cs">
       <DependentUpon>LocalOptionsControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="OptionsPages\DisplayOptionsPage.cs" />
-    <Compile Include="OptionsPages\DisplayOptionsControl.xaml.cs">
-      <DependentUpon>DisplayOptionsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands.cs" />
@@ -109,11 +109,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="OptionsPages\LocalOptionsControl.xaml">
+    <Page Include="OptionsPages\RemoteLaunchOptionsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="OptionsPages\DisplayOptionsControl.xaml">
+    <Page Include="OptionsPages\LocalOptionsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

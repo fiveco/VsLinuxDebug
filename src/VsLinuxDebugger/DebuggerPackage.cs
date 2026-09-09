@@ -28,8 +28,8 @@ namespace VsLinuxDebugger
   [ProvideOptionPage(typeof(RemoteHostOptionsPage), "FCO Linux Debugger", "Remote Host", 0, 0, true, Sort = 1)]
   [ProvideOptionPage(typeof(RemoteCredentialsOptionsPage), "FCO Linux Debugger", "Remote Credentials", 0, 0, true, Sort = 2)]
   [ProvideOptionPage(typeof(RemoteDebuggerOptionsPage), "FCO Linux Debugger", "Remote Debugger", 0, 0, true, Sort = 3)]
-  [ProvideOptionPage(typeof(LocalOptionsPage), "FCO Linux Debugger", "Local", 0, 0, true, Sort = 4)]
-  [ProvideOptionPage(typeof(DisplayOptionsPage), "FCO Linux Debugger", "Display (X11)", 0, 0, true, Sort = 5)]
+  [ProvideOptionPage(typeof(RemoteLaunchOptionsPage), "FCO Linux Debugger", "Remote Launch", 0, 0, true, Sort = 4)]
+  [ProvideOptionPage(typeof(LocalOptionsPage), "FCO Linux Debugger", "Local", 0, 0, true, Sort = 5)]
   public sealed partial class DebuggerPackage : AsyncPackage
   {
     /// <summary>Package GUID string.</summary>
@@ -41,9 +41,9 @@ namespace VsLinuxDebugger
 
     public RemoteDebuggerOptionsPage RemoteDebuggerOptions => (RemoteDebuggerOptionsPage)GetDialogPage(typeof(RemoteDebuggerOptionsPage));
 
-    public LocalOptionsPage LocalOptions => (LocalOptionsPage)GetDialogPage(typeof(LocalOptionsPage));
+    public RemoteLaunchOptionsPage RemoteLaunchOptions => (RemoteLaunchOptionsPage)GetDialogPage(typeof(RemoteLaunchOptionsPage));
 
-    public DisplayOptionsPage DisplayOptions => (DisplayOptionsPage)GetDialogPage(typeof(DisplayOptionsPage));
+    public LocalOptionsPage LocalOptions => (LocalOptionsPage)GetDialogPage(typeof(LocalOptionsPage));
 
     /// <summary>
     /// Initialization of the package; this method is called right after the package is sited, so this is the place

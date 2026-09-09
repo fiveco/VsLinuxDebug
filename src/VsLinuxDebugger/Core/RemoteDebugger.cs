@@ -83,7 +83,7 @@ namespace VsLinuxDebugger.Core
           }
         }
 
-        if (_options.UseSelfContainedDeployment && buildOptions.HasFlag(BuildOptions.Deploy))
+        if (buildOptions.HasFlag(BuildOptions.Deploy))
         {
           if (!await PublishAsync(cancellationToken))
           {
@@ -127,17 +127,11 @@ namespace VsLinuxDebugger.Core
 
             await RunConfiguredCommandsAsync(ssh, _options.RemotePreDeployCommands);
 
-            var uploadFromDir = _options.UseSelfContainedDeployment
-              ? _launchBuilder.PublishDirFullPath
-              : _launchBuilder.OutputDirFullPath;
+            await ssh.UploadFilesAsync(_launchBuilder.PublishDirFullPath, _launchBuilder.RemoteDeployProjectFolder);
 
-            await ssh.UploadFilesAsync(uploadFromDir, _launchBuilder.RemoteDeployProjectFolder);
-
-            if (_options.UseSelfContainedDeployment)
-            {
-              // Transfer (tar/scp) from Windows does not preserve the exec bit.
-              await ssh.BashAsync($"chmod +x \"{_launchBuilder.RemoteDeployExecutableFilePath}\"");
-            }
+            // Transfer (tar/scp) from Windows does not preserve the exec bit, and `dotnet
+            // publish` always produces a native apphost executable (even framework-dependent).
+            await ssh.BashAsync($"chmod +x \"{_launchBuilder.RemoteDeployExecutableFilePath}\"");
 
             await RunConfiguredCommandsAsync(ssh, _options.RemotePostDeployCommands);
           }
@@ -151,18 +145,10 @@ namespace VsLinuxDebugger.Core
           // The following replaces -->> if (_options.RemoteDebugDisplayGui)
           if (buildOptions.HasFlag(BuildOptions.Launch) && !_options.AttachToRunningProcess)
           {
-            var launchTarget = _options.UseSelfContainedDeployment
-              ? $"\"{_launchBuilder.RemoteDeployExecutableFilePath}\""
-              : $"dotnet \"{_launchBuilder.RemoteDeployAssemblyFilePath}\"";
-            var cmd = $"DISPLAY=:0 {launchTarget} &";
-            //// var retPid = ssh.Bash(cmd);
-
+            var cmd = $"DISPLAY=:0 \"{_launchBuilder.RemoteDeployExecutableFilePath}\" &";
             // RET: "[1] 31974"
             var retPid = ssh.BashStream(cmd, "[");
             Logger.Output($"Launch command returned: {retPid}");
-
-            //ssh.BashStream("export DISPLAY=:0");
-            //ssh.BashStream($"dotnet \"{_launchBuilder.RemoteDeployAssemblyFilePath}\"");
           }
 
           cancellationToken.ThrowIfCancellationRequested();
@@ -296,21 +282,23 @@ namespace VsLinuxDebugger.Core
     }
 
     /// <summary>Runs `dotnet publish` for <see cref="UserOptions.RemoteRuntimeIdentifier"/> into
-    /// <see cref="LaunchBuilder.PublishDirFullPath"/>. A plain build's output folder does not
-    /// reliably match what gets deployed once a project targets a runtime identifier (the SDK
-    /// nests RID-specific output under an extra subfolder, and its exact shape isn't something
-    /// this extension should have to keep guessing) -- publishing directly to a known, flat
-    /// folder sidesteps that entirely, the same way `dotnet publish -o <dir>` does when run by hand.</summary>
+    /// <see cref="LaunchBuilder.PublishDirFullPath"/>. Always publishing (rather than uploading a
+    /// plain build's output folder) is what makes the deployed executable match what a manual
+    /// `dotnet publish`/VS Publish produces: even framework-dependent, `dotnet publish -r <rid>`
+    /// generates a native apphost executable (no bare `.dll` launch needed), whereas a plain build
+    /// does not reliably produce one. It also sidesteps the SDK nesting RID-specific output under
+    /// an extra subfolder that this extension would otherwise have to keep guessing at.</summary>
     /// <returns>True if `dotnet publish` exited successfully.</returns>
     private async Task<bool> PublishAsync(CancellationToken cancellationToken)
     {
       if (Directory.Exists(_launchBuilder.PublishDirFullPath))
         Directory.Delete(_launchBuilder.PublishDirFullPath, recursive: true);
 
+      var selfContained = _options.UseSelfContainedDeployment ? "true" : "false";
       var args = $"publish \"{_launchBuilder.ProjectFileFullPath}\" " +
         $"-c \"{_launchBuilder.ProjectConfigName}\" " +
         $"-r \"{_options.RemoteRuntimeIdentifier}\" " +
-        $"--self-contained true " +
+        $"--self-contained {selfContained} " +
         $"-o \"{_launchBuilder.PublishDirFullPath}\"";
 
       Logger.Output($"PUBLISH> dotnet {args}");
