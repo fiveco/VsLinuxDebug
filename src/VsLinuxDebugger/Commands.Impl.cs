@@ -199,7 +199,6 @@ namespace VsLinuxDebugger
         SudoCommand = VsixPackage.RemoteDebuggerOptions.SudoCommand,
         UseSudoForDebugger = VsixPackage.RemoteDebuggerOptions.UseSudoForDebugger,
 
-        UseCommandLineArgs = VsixPackage.ExperimentalOptions.UseCommandLineArgs,
         UseSelfContainedDeployment = VsixPackage.RemoteDebuggerOptions.UseSelfContainedDeployment,
         RemoteRuntimeIdentifier = VsixPackage.RemoteDebuggerOptions.RemoteRuntimeIdentifier,
         //// UsePublish = Settings.UsePublish,

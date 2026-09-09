@@ -34,7 +34,6 @@
     /// <summary>Full path to VS Debugger.</summary>
     public string RemoteVsDbgFullPath => LinuxPath.Combine(RemoteVsDbgBasePath, Constants.VS2022, Constants.AppVSDbg);
 
-    public bool UseCommandLineArgs { get; set; }
     public bool UsePublish { get; set; }
 
     /// <summary>When enabled, launches the deployed program directly as a native executable

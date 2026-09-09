@@ -423,10 +423,6 @@ namespace VsLinuxDebugger.Core
 
       _launchBuilder = new LaunchBuilder(dte, project, _options);
 
-      // TODO: Commandline Args
-      //// if (_options.UseCommandLineArgs)
-      ////   _launchBuilder.CommandLineArgs = ... extract from localSettings.json
-
       return true;
     }
 
