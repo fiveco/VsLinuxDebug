@@ -25,7 +25,7 @@
         </StackPanel>
 
         <StackPanel Style="{StaticResource FieldRowStyle}">
-          <Label Content="Host Port Number (22)" Style="{StaticResource FieldLabelStyle}" />
+          <Label Content="Host Port Number" Style="{StaticResource FieldLabelStyle}" />
           <TextBox Text="{Binding HostPort, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
           <TextBlock Style="{StaticResource FieldHelpTextStyle}"
                      Text="Remote Host Port Number (SSH Default is 22)" />

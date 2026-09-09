@@ -27,6 +27,17 @@
     <Setter Property="VerticalContentAlignment" Value="Center" />
   </Style>
 
+  <!-- For multi-line fields (env vars, pre/post-deploy commands): text starts at the
+       top-left instead of being vertically centered in the box. -->
+  <Style x:Key="FieldMultilineTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource FieldTextBoxStyle}">
+    <Setter Property="VerticalContentAlignment" Value="Top" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="AcceptsReturn" Value="True" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+    <Setter Property="Height" Value="70" />
+  </Style>
+
   <Style x:Key="FieldCheckBoxStyle" TargetType="CheckBox">
     <Setter Property="Margin" Value="0,2,0,0" />
     <Setter Property="VerticalContentAlignment" Value="Center" />

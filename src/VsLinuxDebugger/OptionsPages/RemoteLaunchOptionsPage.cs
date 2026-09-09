@@ -76,7 +76,7 @@ namespace Xeno.VsLinuxDebug.OptionsPages
 
     [Category("Remote Launch")]
     [DisplayName("Sudo Command")]
-    [Description("Elevation command used when 'Use Sudo for Debugger' is enabled. (Default: `sudo -n -E`)")]
+    [Description("Elevation command used when 'Use Sudo for Debugger' is enabled. (Default: `sudo -n`)")]
     public string SudoCommand
     {
       get => _sudoCommand;

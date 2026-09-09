@@ -23,7 +23,7 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     }
 
     [Category("Remote Host")]
-    [DisplayName("Host Port Number (22)")]
+    [DisplayName("Host Port Number")]
     [Description("Remote Host Port Number (SSH Default is 22)")]
     public int HostPort
     {
