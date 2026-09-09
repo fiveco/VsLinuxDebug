@@ -10,7 +10,7 @@ namespace Xeno.VsLinuxDebug.OptionsPages
   {
     private string _plinkPath = "";
     private bool _deleteLaunchJsonAfterBuild = false;
-    private bool _autoSwitchLinuxDbgOutput = false;
+    private bool _autoSwitchLinuxDbgOutput = true;
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -34,7 +34,7 @@ namespace Xeno.VsLinuxDebug.OptionsPages
 
     [Category("Local Settings")]
     [DisplayName("Switch to LinuxDbg Output on Build")]
-    [Description("Automatically show output for Linux Debugger on build (default = false).")]
+    [Description("Automatically show output for Linux Debugger on build (default = true).")]
     public bool SwitchLinuxDbgOutput
     {
       get => _autoSwitchLinuxDbgOutput;
