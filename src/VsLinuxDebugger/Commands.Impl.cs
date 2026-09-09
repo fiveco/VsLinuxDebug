@@ -189,7 +189,7 @@ namespace VsLinuxDebugger
         HostIp = VsixPackage.RemoteHostOptions.HostIp,
         HostPort = VsixPackage.RemoteHostOptions.HostPort,
 
-        LocalPLinkPath = VsixPackage.RemoteCredentialsOptions.PLinkPath,
+        LocalPLinkPath = VsixPackage.LocalOptions.PLinkPath,
         LocalSwitchLinuxDbgOutput = VsixPackage.LocalOptions.SwitchLinuxDbgOutput,
         ForceKillOnStop = VsixPackage.LocalOptions.ForceKillOnStop,
 
@@ -217,7 +217,7 @@ namespace VsLinuxDebugger
         UserName = VsixPackage.RemoteCredentialsOptions.UserName,
         UserPass = VsixPackage.RemoteCredentialsOptions.UserPass,
         UserGroupName = VsixPackage.RemoteHostOptions.UserGroupName,
-        UseSSHExeEnabled = VsixPackage.RemoteCredentialsOptions.UseSSHExeEnabled
+        UseSSHExeEnabled = VsixPackage.LocalOptions.UseSSHExeEnabled
       };
     }
   }

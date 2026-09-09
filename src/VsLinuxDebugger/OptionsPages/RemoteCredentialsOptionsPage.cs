@@ -19,8 +19,6 @@ namespace Xeno.VsLinuxDebug.OptionsPages
       ".ssh\\id_rsa");
     private string _userPrivateKeyPassword = "";
     private string _userCertificatePath = "";
-    private bool _useSSHExeEnabled = true;
-    private string _plinkPath = "";
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -36,8 +34,9 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     [Category("Remote Credentials")]
     [DisplayName("SSH Key File Enabled")]
     [Description(
-      "Use an SSH private key instead of a password. PLINK needs a '.ppk' key, so this " +
-      "only affects the debugger connection when 'Use SSH.exe' is enabled.")]
+      "Use an SSH private key instead of a password. PLINK only accepts '.ppk' keys, not " +
+      "this OpenSSH-format one, so the debugger connection needs 'Use SSH.exe' enabled " +
+      "(Options > Local) to use it.")]
     public bool UserPrivateKeyEnabled
     {
       get => _userPrivateKeyEnabled;
@@ -80,24 +79,6 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     {
       get => _userCertificatePath;
       set { _userCertificatePath = value; OnPropertyChanged(nameof(UserCertificatePath)); }
-    }
-
-    [Category("Remote Credentials")]
-    [DisplayName("Use SSH.exe with integrated user/[..]/.ssh/id_rsa instead of PLINK")]
-    [Description("Use SSH.exe with integrated user/[..]/.ssh/id_rsa instead of PLINK")]
-    public bool UseSSHExeEnabled
-    {
-      get => _useSSHExeEnabled;
-      set { _useSSHExeEnabled = value; OnPropertyChanged(nameof(UseSSHExeEnabled)); }
-    }
-
-    [Category("Remote Credentials")]
-    [DisplayName("PLink Local Path (blank to use embedded)")]
-    [Description("Full path to local PLINK.EXE, used when 'Use SSH.exe' is unchecked.")]
-    public string PLinkPath
-    {
-      get => _plinkPath;
-      set { _plinkPath = value; OnPropertyChanged(nameof(PLinkPath)); }
     }
 
     /*[Category(Credientials)]

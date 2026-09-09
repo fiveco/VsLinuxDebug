@@ -110,6 +110,7 @@
       <Button guid="GuidLinuxDebugerMenu" id="CmdStop" priority="0x0404" type="Button">
         <Parent guid="GuidLinuxDebugerMenu" id="RemoteMainMenuGroupLevel1" />
         <Icon guid="Stop_16x" id="imgStop" />
+        <CommandFlag>DefaultDisabled</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
