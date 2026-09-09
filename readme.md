@@ -82,24 +82,6 @@ For GUI projects, you can use **Build and Deploy** and then manually attach to t
 
 This will save you 1.5 minutes on every build of manual uploading and updating rights via `chown -R`.
 
-## How To Generate Private Key (optional)
-
-The following steps are optional if you wish to use an SSH private key instead of a password. These steps were written for Windows, but the steps are similar on Linux.
-
-1. Open PowerShell:
-2. **Generate key** (_with old PEM format_)
-   1. `ssh-keygen -m PEM -t rsa -b 4096`
-3. Set output name (_default is okay for basic setups_)
-4. Input a passphrase for the key _(OPTIONAL)_
-5. Windows will now generate your RSA public/private key pair.
-   1. Default location: `%UserProfile%\.ssh` (Windows)
-   2. The public key will be stored as `id_rsa.pub` in the directory
-6. **Upload the public key** to your remote machine
-   1. Navigate to folder, `~/.ssh/` on Linux device
-   2. If `~/.ssh/authorized_keys` exists, append the contents of `id_rsa.pub` to the next line.
-   3. If it does not exist, simply upload `id_rsa.pub` and rename it to, `authorized_keys`
-7. DONE!
-
 If your remote device uses **SSH CA-signed certificates** instead of `authorized_keys` (i.e. `TrustedUserCAKeys` configured in `sshd_config`), point "SSH Private Key File" at your CA-issued private key; the matching `<key>-cert.pub` certificate is picked up automatically if it sits next to the key, or can be set explicitly via "SSH Certificate File" on the Remote Credentials options page.
 
 ## Future Features
