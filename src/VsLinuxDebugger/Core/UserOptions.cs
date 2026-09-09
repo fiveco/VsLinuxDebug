@@ -11,6 +11,10 @@
     public string LocalPLinkPath { get; set; }
     public bool LocalSwitchLinuxDbgOutput { get; set; }
 
+    /// <summary>When Stop cancels an in-progress build/deploy, also immediately close the SSH
+    /// connection even mid-command. Default false lets the current remote step finish first.</summary>
+    public bool ForceKillOnStop { get; set; } = false;
+
     public bool RemoteDebugDisplayGui { get; set; }
     public string RemoteDebugDisplayNumber { get; set; }
     public string RemoteDeployBasePath { get; set; }

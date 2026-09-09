@@ -107,6 +107,16 @@
       TODO: Publish & Publish and Debug
       -->
 
+      <Button guid="GuidLinuxDebugerMenu" id="CmdStop" priority="0x0404" type="Button">
+        <Parent guid="GuidLinuxDebugerMenu" id="RemoteMainMenuGroupLevel1" />
+        <Icon guid="Stop_16x" id="imgStop" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Stop</ButtonText>
+        </Strings>
+      </Button>
+
       <!--
       <Button guid="GuidLinuxDebugerMenu" id="CmdOpenLogs" priority="0x0500" type="Button">
         <Parent guid="GuidLinuxDebugerMenu" id="RemoteMainMenuGroupLevel2" />
@@ -143,6 +153,7 @@
       <Bitmap guid="DeployAndDebug_16x" href="Resources\DeployAndDebug_16x.png" usedList="imgDeployAndDebug" />
       <Bitmap guid="DeployOnly_16x" href="Resources\DeployOnly_16x.png" usedList="imgDeployOnly" />
       <Bitmap guid="DebugOnly_16x" href="Resources\DebugOnly_16x.png" usedList="imgDebugOnly" />
+      <Bitmap guid="Stop_16x" href="Resources\Stop_16x.png" usedList="imgStop" />
       <Bitmap guid="ShowLog_16x" href="Resources\ShowLog_16x.png" usedList="imgShowLog" />
       <Bitmap guid="Settings_16x" href="Resources\Settings_16x.png" usedList="imgSettings" />
       <!--
@@ -168,6 +179,7 @@
       <IDSymbol name="CmdDebugOnly" value="0x1003" />
       <IDSymbol name="CmdOpenLogs" value="0x1004" />
       <IDSymbol name="CmdOpenSettings" value="0x1005" />
+      <IDSymbol name="CmdStop" value="0x1006" />
     </GuidSymbol>
 
     <GuidSymbol name="DeployAndDebug_16x" value="{B3A9DD89-C898-4AFE-AC48-3A4C84122475}">
@@ -180,6 +192,10 @@
 
     <GuidSymbol name="DebugOnly_16x" value="{0164DE8A-8EAB-40CE-9607-C6D15882A91A}">
       <IDSymbol name="imgDebugOnly" value="1" />
+    </GuidSymbol>
+
+    <GuidSymbol name="Stop_16x" value="{2C6A0A0E-6E63-4D5B-9F0B-4F6C4E1F7D8A}">
+      <IDSymbol name="imgStop" value="1" />
     </GuidSymbol>
 
     <GuidSymbol name="ShowLog_16x" value="{5B4A8C21-9884-4A10-B028-1BC98C324B10}">

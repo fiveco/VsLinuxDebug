@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -23,11 +24,16 @@ namespace VsLinuxDebugger
 
       public const int CmdShowLog = 0x1004;
       public const int CmdShowSettings = 0x1005;
+      public const int CmdStop = 0x1006;
 
       public const int LinuxRemoteMainMenu = 0x1000;
       public const int RemoteMainMenuGroupLevel1 = 0x1100;
       public const int RemoteMainMenuGroupLevel2 = 0x1200;
     }
+
+    /// <summary>Non-null while a build/deploy/debug operation is in progress; cancelled by
+    /// <see cref="OnStop"/>.</summary>
+    private static CancellationTokenSource _runningOperation;
 
     /////// <summary>Override standard button text with.</summary>
     /////// <param name="commandId">Command Id.</param>
@@ -61,6 +67,7 @@ namespace VsLinuxDebugger
 
       AddMenuItem(cmd, CommandIds.CmdShowLog, SetMenuTextAndVisibility, OnShowLog);
       AddMenuItem(cmd, CommandIds.CmdShowSettings, SetMenuTextAndVisibility, OnShowSettingsAsync);
+      AddMenuItem(cmd, CommandIds.CmdStop, SetMenuTextAndVisibility, OnStop);
     }
 
     private async Task<bool> ExecuteBuildAsync(BuildOptions buildOptions)
@@ -69,23 +76,36 @@ namespace VsLinuxDebugger
 
       var success = true;
 
-      var options = ToUserOptions();
-      using (var dbg = new RemoteDebugger(options))
+      using (var cts = new CancellationTokenSource())
       {
-        if (!dbg.IsProjectValid())
+        _runningOperation = cts;
+
+        var options = ToUserOptions();
+        using (var dbg = new RemoteDebugger(options))
         {
-          Logger.Output("No C# startup project/solution loaded.");
-          success = false;
+          if (!dbg.IsProjectValid())
+          {
+            Logger.Output("No C# startup project/solution loaded.");
+            success = false;
+          }
+
+          if (success && !await dbg.BeginAsync(buildOptions, cts.Token))
+          {
+            if (!cts.IsCancellationRequested)
+              Logger.Output("Failed to perform actions.");
+            success = false;
+          }
         }
 
-        if (success && !await dbg.BeginAsync(buildOptions))
-        {
-          Logger.Output("Failed to perform actions.");
-          success = false;
-        }
+        _runningOperation = null;
       }
 
       return success;
+    }
+
+    private void OnStop(object sender, EventArgs e)
+    {
+      _runningOperation?.Cancel();
     }
 
     private async void OnBuildDeployAsync(object sender, EventArgs e)
@@ -135,14 +155,20 @@ namespace VsLinuxDebugger
         //// cmd.Text = $"{GetMenuText(cmd.CommandID.ID)} ({settings.HostIp})";
         //// cmd.Enabled = _extension.IsStartupProjectAvailable();
 
+        var isRunning = _runningOperation != null;
+
         //// || cmd.CommandID.ID == CommandIds.CmdShowSettings
         if (cmd.CommandID.ID == CommandIds.CmdShowLog)
         {
           cmd.Enabled = false;
         }
+        else if (cmd.CommandID.ID == CommandIds.CmdStop)
+        {
+          cmd.Enabled = isRunning;
+        }
         else
         {
-          cmd.Enabled = true;
+          cmd.Enabled = !isRunning;
         }
       }
     }
@@ -160,6 +186,7 @@ namespace VsLinuxDebugger
 
         LocalPLinkPath = VsixPackage.LocalOptions.PLinkPath,
         LocalSwitchLinuxDbgOutput = VsixPackage.LocalOptions.SwitchLinuxDbgOutput,
+        ForceKillOnStop = VsixPackage.LocalOptions.ForceKillOnStop,
 
         RemoteDebugDisplayGui = VsixPackage.DisplayOptions.RemoteDebugDisplayGui,
         RemoteDebugDisplayNumber = VsixPackage.DisplayOptions.RemoteDebugDisplayNumber,

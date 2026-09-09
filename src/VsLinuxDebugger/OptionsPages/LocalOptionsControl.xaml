@@ -37,7 +37,15 @@
                      IsChecked="{Binding SwitchLinuxDbgOutput}"
                      Style="{StaticResource FieldCheckBoxStyle}" />
           <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                     Text="Automatically show output for Linux Debugger on build (default = false)." />
+                     Text="Automatically show output for Linux Debugger on build (default = true)." />
+        </StackPanel>
+
+        <StackPanel Style="{StaticResource FieldRowStyle}">
+          <CheckBox Content="Force kill on Stop (interrupt mid-command)"
+                     IsChecked="{Binding ForceKillOnStop}"
+                     Style="{StaticResource FieldCheckBoxStyle}" />
+          <TextBlock Style="{StaticResource FieldHelpTextStyle}"
+                     Text="When Stop cancels an in-progress build/deploy, also immediately close the SSH connection even mid-command (default = false: lets the current remote step finish first, avoiding a half-uploaded or half-restarted state)." />
         </StackPanel>
 
       </StackPanel>

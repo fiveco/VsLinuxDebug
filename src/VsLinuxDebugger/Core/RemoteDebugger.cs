@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EnvDTE;
 using EnvDTE80;
@@ -41,8 +42,12 @@ namespace VsLinuxDebugger.Core
 
     /// <summary>Perform operation.</summary>
     /// <param name="buildOptions">Build options.</param>
+    /// <param name="cancellationToken">Cancelled when the user hits Stop. Checked between each
+    /// major step; a SSH command already in flight is instead let to finish unless
+    /// <see cref="UserOptions.ForceKillOnStop"/> is enabled, in which case the connection is
+    /// torn down immediately, mid-command.</param>
     /// <returns>True on success.</returns>
-    public async Task<bool> BeginAsync(BuildOptions buildOptions)
+    public async Task<bool> BeginAsync(BuildOptions buildOptions, CancellationToken cancellationToken = default)
     {
       try
       {
@@ -53,15 +58,22 @@ namespace VsLinuxDebugger.Core
           return false;
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (buildOptions.HasFlag(BuildOptions.Build))
         {
           BuildBegin();
 
+          using (cancellationToken.Register(() => CancelBuild()))
+          {
 #pragma warning disable VSTHRD003 // _buildTask is a TaskCompletionSource completed by a
-          // DTE build-event callback (BuildEvents_OnBuildDone), not a cold task started
-          // elsewhere; awaiting it here cannot deadlock.
-          await _buildTask.Task;
+            // DTE build-event callback (BuildEvents_OnBuildDone), not a cold task started
+            // elsewhere; awaiting it here cannot deadlock.
+            await _buildTask.Task;
 #pragma warning restore VSTHRD003
+          }
+
+          cancellationToken.ThrowIfCancellationRequested();
 
           // Work completed
           if (!_buildSuccessful)
@@ -73,16 +85,23 @@ namespace VsLinuxDebugger.Core
 
         if (_options.UseSelfContainedDeployment && buildOptions.HasFlag(BuildOptions.Deploy))
         {
-          if (!await PublishAsync())
+          if (!await PublishAsync(cancellationToken))
           {
             Logger.Output("Publish was not successful.");
             return false;
           }
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         var remoteInfo = GetRemoteConnectionInfo();
 
         using (var ssh = new SshTool(remoteInfo))
+        using (cancellationToken.Register(() =>
+        {
+          if (_options.ForceKillOnStop)
+            ssh.Dispose();
+        }))
         {
           var success = await ssh.ConnectAsync();
           if (!success)
@@ -94,6 +113,8 @@ namespace VsLinuxDebugger.Core
           var vsDbgFolder = LinuxPath.Combine(_options.RemoteVsDbgBasePath, Constants.VS2022);
 
           await ssh.TryInstallVsDbgAsync(vsDbgFolder);
+
+          cancellationToken.ThrowIfCancellationRequested();
 
           var hasRemoteService = !string.IsNullOrWhiteSpace(_options.RemoteServiceName);
 
@@ -130,6 +151,8 @@ namespace VsLinuxDebugger.Core
           ////  // This is PUBLISH not our 'deployer'
           ////}
 
+          cancellationToken.ThrowIfCancellationRequested();
+
           if (hasRemoteService && buildOptions.HasFlag(BuildOptions.Deploy))
           {
             // Always bring the service back up after we've redeployed it, whether or
@@ -161,6 +184,8 @@ namespace VsLinuxDebugger.Core
             //ssh.BashStream($"dotnet \"{_launchBuilder.RemoteDeployAssemblyFilePath}\"");
           }
 
+          cancellationToken.ThrowIfCancellationRequested();
+
           if (buildOptions.HasFlag(BuildOptions.Debug))
           {
             if (hasRemoteService)
@@ -188,6 +213,12 @@ namespace VsLinuxDebugger.Core
         }
 
         BuildCleanup();
+      }
+      catch (OperationCanceledException)
+      {
+        Logger.Output("Stopped.");
+        BuildCleanup();
+        return false;
       }
       catch (Exception ex)
       {
@@ -239,6 +270,24 @@ namespace VsLinuxDebugger.Core
       _dte.Solution.SolutionBuild.BuildProject(_launchBuilder.ProjectConfigName, _launchBuilder.ProjectFileFullPath);
     }
 
+    private void CancelBuild()
+    {
+      ThreadHelper.JoinableTaskFactory.Run(async () =>
+      {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        try
+        {
+          if (_dte.Solution.SolutionBuild.BuildState == vsBuildState.vsBuildStateInProgress)
+            _dte.ExecuteCommand("Build.Cancel");
+        }
+        catch { }
+
+        // BuildEvents_OnBuildDone still fires after a cancel; unblock the awaiter either way.
+        _buildTask?.TrySetResult(false);
+      });
+    }
+
     private void BuildCleanup()
     {
       // Not really needed
@@ -256,7 +305,7 @@ namespace VsLinuxDebugger.Core
     /// this extension should have to keep guessing) -- publishing directly to a known, flat
     /// folder sidesteps that entirely, the same way `dotnet publish -o <dir>` does when run by hand.</summary>
     /// <returns>True if `dotnet publish` exited successfully.</returns>
-    private async Task<bool> PublishAsync()
+    private async Task<bool> PublishAsync(CancellationToken cancellationToken)
     {
       if (Directory.Exists(_launchBuilder.PublishDirFullPath))
         Directory.Delete(_launchBuilder.PublishDirFullPath, recursive: true);
@@ -279,6 +328,15 @@ namespace VsLinuxDebugger.Core
       };
 
       using (var process = new Process { StartInfo = startInfo })
+      using (cancellationToken.Register(() =>
+      {
+        try
+        {
+          if (!process.HasExited)
+            process.Kill();
+        }
+        catch { }
+      }))
       {
         process.Start();
 
@@ -294,6 +352,8 @@ namespace VsLinuxDebugger.Core
           Logger.Output(stdOut);
         if (!string.IsNullOrWhiteSpace(stdErr))
           Logger.Output(stdErr);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         return process.ExitCode == 0;
       }

@@ -11,6 +11,7 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     private string _plinkPath = "";
     private bool _deleteLaunchJsonAfterBuild = false;
     private bool _autoSwitchLinuxDbgOutput = true;
+    private bool _forceKillOnStop = false;
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -44,6 +45,18 @@ namespace Xeno.VsLinuxDebug.OptionsPages
         _autoSwitchLinuxDbgOutput = value;
         OnPropertyChanged(nameof(SwitchLinuxDbgOutput));
       }
+    }
+
+    [Category("Local Settings")]
+    [DisplayName("Force kill on Stop (interrupt mid-command)")]
+    [Description("When Stop is used to cancel an in-progress build/deploy, also immediately " +
+      "close the SSH connection even if a remote command is currently running (default = false, " +
+      "which instead lets the current step finish before stopping, avoiding a half-uploaded or " +
+      "half-restarted remote state).")]
+    public bool ForceKillOnStop
+    {
+      get => _forceKillOnStop;
+      set { _forceKillOnStop = value; OnPropertyChanged(nameof(ForceKillOnStop)); }
     }
 
     protected override UIElement Child => new LocalOptionsControl(this);
