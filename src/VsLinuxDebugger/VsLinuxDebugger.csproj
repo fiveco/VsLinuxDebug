@@ -19,7 +19,7 @@
     <!-- Single source of truth for the extension's version. Also drives AssemblyInfo.cs
          (see GenerateAssemblyVersionInfo target below) and source.extension.vsixmanifest
          (via the GetVsixVersion target, referenced as |%CurrentProject%;GetVsixVersion|). -->
-    <VsixVersion>3.7.3</VsixVersion>
+    <VsixVersion>3.8.0</VsixVersion>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <LangVersion>8.0</LangVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
@@ -69,7 +69,9 @@
     <Compile Include="Logger.cs" />
     <Compile Include="OptionsPages\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="OptionsPages\MultilineTextBoxBehavior.cs" />
-    <Compile Include="OptionsPages\LayoutRefreshBehavior.cs" />
+    <Compile Include="OptionsPages\MultilineEditDialog.xaml.cs">
+      <DependentUpon>MultilineEditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OptionsPages\RemoteHostOptionsPage.cs" />
     <Compile Include="OptionsPages\RemoteHostOptionsControl.xaml.cs">
       <DependentUpon>RemoteHostOptionsControl.xaml</DependentUpon>
@@ -96,6 +98,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="OptionsPages\OptionsPageStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsPages\MultilineEditDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

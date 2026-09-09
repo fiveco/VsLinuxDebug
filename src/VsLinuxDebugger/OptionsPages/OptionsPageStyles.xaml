@@ -1,6 +1,5 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Xeno.VsLinuxDebug.OptionsPages">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
   <!-- Shared layout constants/styles for the six Options pages, so they read as one
        consistent flat form (label above control, consistent spacing, no PropertyGrid-style
@@ -51,16 +50,10 @@
     <Setter Property="FontStyle" Value="Italic" />
   </Style>
 
-  <!-- UIElementDialogPage hosts this WPF content inside a native Win32 dialog; the first
-       layout pass sometimes runs before that host has communicated its real width, wrapping
-       help text at the wrong point (visible as a stray vertical line/truncated text until the
-       page is revisited). LayoutRefreshBehavior.RefreshOnLoad forces a second measure/arrange
-       pass once actually loaded to fix it. -->
   <Style x:Key="PageRootStyle" TargetType="StackPanel">
     <Setter Property="Orientation" Value="Vertical" />
     <Setter Property="Margin" Value="8" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
-    <Setter Property="local:LayoutRefreshBehavior.RefreshOnLoad" Value="True" />
   </Style>
 
 </ResourceDictionary>

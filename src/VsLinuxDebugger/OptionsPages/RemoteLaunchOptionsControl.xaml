@@ -22,29 +22,56 @@
 
           <StackPanel Style="{StaticResource FieldRowStyle}">
             <Label Content="Environment Variables" Style="{StaticResource FieldLabelStyle}" />
-            <TextBox Text="{Binding RemoteEnvironmentVariables, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource FieldMultilineTextBoxStyle}"
-                     local:MultilineTextBoxBehavior.AcceptsEnterKey="True" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBox Grid.Column="0"
+                       Text="{Binding RemoteEnvironmentVariables, UpdateSourceTrigger=PropertyChanged}"
+                       Style="{StaticResource FieldMultilineTextBoxStyle}"
+                       local:MultilineTextBoxBehavior.AcceptsEnterKey="True" />
+              <Button Grid.Column="1" Content="Edit..." Margin="6,0,0,0" Padding="8,0" VerticalAlignment="Top"
+                      Tag="RemoteEnvironmentVariables" Click="EditMultilineField_Click" />
+            </Grid>
             <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="'KEY=VALUE' pairs passed to the debuggee, one per line." />
+                       Text="'KEY=VALUE' pairs passed to the debuggee, one per line. Enter doesn't work in this box (closes the window) -- use 'Edit...' to type multiple lines." />
           </StackPanel>
 
           <StackPanel Style="{StaticResource FieldRowStyle}">
             <Label Content="Pre-Deploy Commands" Style="{StaticResource FieldLabelStyle}" />
-            <TextBox Text="{Binding RemotePreDeployCommands, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource FieldMultilineTextBoxStyle}"
-                     local:MultilineTextBoxBehavior.AcceptsEnterKey="True" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBox Grid.Column="0"
+                       Text="{Binding RemotePreDeployCommands, UpdateSourceTrigger=PropertyChanged}"
+                       Style="{StaticResource FieldMultilineTextBoxStyle}"
+                       local:MultilineTextBoxBehavior.AcceptsEnterKey="True" />
+              <Button Grid.Column="1" Content="Edit..." Margin="6,0,0,0" Padding="8,0" VerticalAlignment="Top"
+                      Tag="RemotePreDeployCommands" Click="EditMultilineField_Click" />
+            </Grid>
             <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Shell commands run before upload, one per line, i.e. 'sudo systemctl stop myapp.service'." />
+                       Text="Shell commands run before upload, one per line, i.e. 'sudo systemctl stop myapp.service'. Enter doesn't work in this box (closes the window) -- use 'Edit...' to type multiple lines." />
           </StackPanel>
 
           <StackPanel Style="{StaticResource FieldRowStyle}">
             <Label Content="Post-Deploy Commands" Style="{StaticResource FieldLabelStyle}" />
-            <TextBox Text="{Binding RemotePostDeployCommands, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource FieldMultilineTextBoxStyle}"
-                     local:MultilineTextBoxBehavior.AcceptsEnterKey="True" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBox Grid.Column="0"
+                       Text="{Binding RemotePostDeployCommands, UpdateSourceTrigger=PropertyChanged}"
+                       Style="{StaticResource FieldMultilineTextBoxStyle}"
+                       local:MultilineTextBoxBehavior.AcceptsEnterKey="True" />
+              <Button Grid.Column="1" Content="Edit..." Margin="6,0,0,0" Padding="8,0" VerticalAlignment="Top"
+                      Tag="RemotePostDeployCommands" Click="EditMultilineField_Click" />
+            </Grid>
             <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                       Text="Shell commands run after upload, one per line, i.e. 'sudo systemctl start myapp.service'." />
+                       Text="Shell commands run after upload, one per line, i.e. 'sudo systemctl start myapp.service'. Enter doesn't work in this box (closes the window) -- use 'Edit...' to type multiple lines." />
           </StackPanel>
 
           <StackPanel Style="{StaticResource FieldRowStyle}">
