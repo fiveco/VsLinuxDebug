@@ -67,7 +67,12 @@ namespace VsLinuxDebugger
 
       AddMenuItem(cmd, CommandIds.CmdShowLog, SetMenuTextAndVisibility, OnShowLog);
       AddMenuItem(cmd, CommandIds.CmdShowSettings, SetMenuTextAndVisibility, OnShowSettingsAsync);
-      AddMenuItem(cmd, CommandIds.CmdStop, SetMenuTextAndVisibility, OnStop);
+
+      // OleMenuCommand.Enabled defaults to true and is only recomputed by
+      // BeforeQueryStatus once the menu is actually opened/queried -- without this, Stop
+      // shows enabled from VS startup until the first time the menu is touched.
+      var stopCmd = AddMenuItem(cmd, CommandIds.CmdStop, SetMenuTextAndVisibility, OnStop);
+      stopCmd.Enabled = false;
     }
 
     private async Task<bool> ExecuteBuildAsync(BuildOptions buildOptions)
