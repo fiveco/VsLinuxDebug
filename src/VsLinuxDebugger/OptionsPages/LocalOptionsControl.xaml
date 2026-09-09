@@ -18,13 +18,6 @@
       <StackPanel>
 
         <StackPanel Style="{StaticResource FieldRowStyle}">
-          <Label Content="PLink Local Path (blank to use embedded)" Style="{StaticResource FieldLabelStyle}" />
-          <TextBox Text="{Binding PLinkPath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBoxStyle}" />
-          <TextBlock Style="{StaticResource FieldHelpTextStyle}"
-                     Text="Full path to local PLINK.EXE file. (i.e. 'C:\temp\putty\plink.exe')" />
-        </StackPanel>
-
-        <StackPanel Style="{StaticResource FieldRowStyle}">
           <CheckBox Content="Delete 'launch.json' after build."
                      IsChecked="{Binding DeleteLaunchJsonAfterBuild}"
                      Style="{StaticResource FieldCheckBoxStyle}" />

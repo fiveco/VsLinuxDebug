@@ -189,7 +189,7 @@ namespace VsLinuxDebugger
         HostIp = VsixPackage.RemoteHostOptions.HostIp,
         HostPort = VsixPackage.RemoteHostOptions.HostPort,
 
-        LocalPLinkPath = VsixPackage.LocalOptions.PLinkPath,
+        LocalPLinkPath = VsixPackage.RemoteCredentialsOptions.PLinkPath,
         LocalSwitchLinuxDbgOutput = VsixPackage.LocalOptions.SwitchLinuxDbgOutput,
         ForceKillOnStop = VsixPackage.LocalOptions.ForceKillOnStop,
 

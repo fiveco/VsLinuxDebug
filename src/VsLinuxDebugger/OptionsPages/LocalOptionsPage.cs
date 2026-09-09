@@ -8,21 +8,11 @@ namespace Xeno.VsLinuxDebug.OptionsPages
   /// <summary>Local-machine settings.</summary>
   public class LocalOptionsPage : UIElementDialogPage, INotifyPropertyChanged
   {
-    private string _plinkPath = "";
     private bool _deleteLaunchJsonAfterBuild = false;
     private bool _autoSwitchLinuxDbgOutput = true;
     private bool _forceKillOnStop = false;
 
     public event PropertyChangedEventHandler PropertyChanged;
-
-    [Category("Local Settings")]
-    [DisplayName("PLink Local Path (blank to use embedded)")]
-    [Description(@"Full path to local PLINK.EXE file. (i.e. 'C:\temp\putty\plink.exe')")]
-    public string PLinkPath
-    {
-      get => _plinkPath;
-      set { _plinkPath = value; OnPropertyChanged(nameof(PLinkPath)); }
-    }
 
     [Category("Local Settings")]
     [DisplayName("Delete 'launch.json' after build.")]
