@@ -94,13 +94,18 @@ namespace VsLinuxDebugger.Core
           var vsDbgFolder = LinuxPath.Combine(_options.RemoteVsDbgBasePath, Constants.VS2022);
 
           await ssh.TryInstallVsDbgAsync(vsDbgFolder);
-          await ssh.MakeDeploymentFolderAsync(_options.RemoteDeployBasePath);
-          await ssh.CleanFolderAsync(_launchBuilder.RemoteDeployProjectFolder);
 
           var hasRemoteService = !string.IsNullOrWhiteSpace(_options.RemoteServiceName);
 
           if (buildOptions.HasFlag(BuildOptions.Deploy))
           {
+            // Only touch the deployment folder (and the service holding files open in
+            // it) when we're actually about to overwrite it -- doing this unconditionally
+            // used to delete the executable backing an already-running attached process
+            // on every "Attach Only" run, and restart the service even when unchanged.
+            await ssh.MakeDeploymentFolderAsync(_options.RemoteDeployBasePath);
+            await ssh.CleanFolderAsync(_launchBuilder.RemoteDeployProjectFolder);
+
             if (hasRemoteService)
             {
               // Stop the supervised service so it isn't holding/re-launching the files
@@ -125,8 +130,13 @@ namespace VsLinuxDebugger.Core
           ////  // This is PUBLISH not our 'deployer'
           ////}
 
-          if (hasRemoteService && (buildOptions.HasFlag(BuildOptions.Launch) || buildOptions.HasFlag(BuildOptions.Debug)))
+          if (hasRemoteService && buildOptions.HasFlag(BuildOptions.Deploy) &&
+            (buildOptions.HasFlag(BuildOptions.Launch) || buildOptions.HasFlag(BuildOptions.Debug)))
           {
+            // Only (re)start the service after we've actually redeployed it. For
+            // Attach Only (Debug without Deploy) we attach to whatever is already
+            // running instead of bouncing the service and losing its current state.
+            //
             // Clear any prior failure count first: a unit that hit its systemd restart
             // rate limit (StartLimitBurst) will otherwise refuse to start again.
             await ssh.BashAsync($"sudo /usr/bin/systemctl reset-failed {_options.RemoteServiceName}.service");
