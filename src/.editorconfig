@@ -333,6 +333,10 @@ dotnet_diagnostic.CS0618.severity = error
 # CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = silent
 
+## VS Threading Analyzers
+# VSTHRD010: False positives, Logger.Output uses the thread-safe OutputStringThreadSafe
+dotnet_diagnostic.VSTHRD010.severity = none
+
 ## StyleCop.Analyzers
 # SA1000: Keywords should be spaced correctly
 dotnet_diagnostic.SA1000.severity = error

@@ -55,7 +55,9 @@ namespace VsLinuxDebugger.Core
         {
           BuildBegin();
 
+#pragma warning disable VSTHRD003 // Completed by the DTE OnBuildDone callback
           await _buildTask.Task;
+#pragma warning restore VSTHRD003
 
           // Work completed
           if (!_buildSuccessful)

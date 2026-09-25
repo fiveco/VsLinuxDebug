@@ -212,8 +212,8 @@ namespace VsLinuxDebugger.Core
       catch (Exception)
       {
         _scp = (_info.PrivateKeyEnabled && File.Exists(_info.PrivateKeyPath))
-          ? new ScpClient(connInfo)
-          : new ScpClient(_info.Host, _info.Port, _info.UserName, _info.UserPass);
+          ? new ScpClient(connInfo, RemotePathTransformation.ShellQuote)
+          : new ScpClient(_info.Host, _info.Port, _info.UserName, _info.UserPass, RemotePathTransformation.ShellQuote);
 
         _scp.Connect();
       }
@@ -317,7 +317,7 @@ namespace VsLinuxDebugger.Core
         var success = await PayloadCompressAndUploadAsync(_sftp, srcDirInfo, destTarGz);
 
         // Decompress file
-        await PayloadDecompressAsync(targetFolder, destTarGz, false);
+        await PayloadDecompressAsync(targetFolder, destTarGz);
 
         Logger.Output($"Upload completed {(success ? "successfully" : "with failure")}.");
 
@@ -433,7 +433,7 @@ namespace VsLinuxDebugger.Core
         {
           try
           {
-            using (var tarGzWriter = WriterFactory.Open(tarGzStream, ArchiveType.Tar, CompressionType.GZip))
+            using (var tarGzWriter = WriterFactory.OpenWriter(tarGzStream, ArchiveType.Tar, WriterOptions.ForTar(CompressionType.GZip)))
             {
               using (MemoryStream fileStream = new MemoryStream())
               {
