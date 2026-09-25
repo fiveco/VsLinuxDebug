@@ -30,6 +30,7 @@
     public bool UserPrivateKeyEnabled { get; set; }
     public string UserPrivateKeyPath { get; set; }
     public string UserPrivateKeyPassword { get; set; }
+    public string UserCertificatePath { get; set; }
 
     public bool UseSSHExeEnabled { get; set; } = false;
   }

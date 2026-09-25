@@ -18,5 +18,8 @@
     public string PrivateKeyPath { get; set; }
 
     public string PrivateKeyPassword { get; set; }
+
+    /// <summary>OpenSSH certificate. When blank, `{PrivateKeyPath}-cert.pub` is used if it exists.</summary>
+    public string CertificatePath { get; set; }
   }
 }

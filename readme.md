@@ -110,6 +110,10 @@ The following steps are options if you wish to use an SSH Private Key. These ste
    3. If it does not exist, simply upload `id_rsa.pub` and rename it to, `authorized_keys`
 7. DONE!
 
+### SSH Certificates (optional)
+
+If your device trusts a certificate authority (`TrustedUserCAKeys` in `sshd_config`) instead of `authorized_keys`, point **SSH Private Key File** at your key and place the signed certificate next to it as `<key>-cert.pub`. It is picked up automatically, or you can set **SSH Certificate File** explicitly.
+
 ## Used By
 
 * [SuessLabs](https://suesslabs.com) and [Xeno Innovations](https://xenoinc.com)

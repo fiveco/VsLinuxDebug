@@ -163,10 +163,17 @@ namespace VsLinuxDebugger.Core
         {
           Logger.Output($"SSH configuring private key connection...");
 
-          if (string.IsNullOrEmpty(_info.PrivateKeyPassword))
-            keyFile = new PrivateKeyFile(_info.PrivateKeyPath);
+          var certificatePath = string.IsNullOrEmpty(_info.CertificatePath)
+            ? $"{_info.PrivateKeyPath}-cert.pub"
+            : _info.CertificatePath;
+
+          if (File.Exists(certificatePath))
+            Logger.Output($"SSH using certificate '{certificatePath}'.");
           else
-            keyFile = new PrivateKeyFile(_info.PrivateKeyPath, _info.PrivateKeyPassword);
+            certificatePath = null;
+
+          var password = string.IsNullOrEmpty(_info.PrivateKeyPassword) ? null : _info.PrivateKeyPassword;
+          keyFile = new PrivateKeyFile(_info.PrivateKeyPath, password, certificatePath);
 
           /**
           // adds rsa-sha2-256
@@ -212,8 +219,8 @@ namespace VsLinuxDebugger.Core
       catch (Exception)
       {
         _scp = (_info.PrivateKeyEnabled && File.Exists(_info.PrivateKeyPath))
-          ? new ScpClient(connInfo)
-          : new ScpClient(_info.Host, _info.Port, _info.UserName, _info.UserPass);
+          ? new ScpClient(connInfo, RemotePathTransformation.ShellQuote)
+          : new ScpClient(_info.Host, _info.Port, _info.UserName, _info.UserPass, RemotePathTransformation.ShellQuote);
 
         _scp.Connect();
       }

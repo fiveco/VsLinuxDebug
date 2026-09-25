@@ -53,6 +53,11 @@ namespace Xeno.VsLinuxDebug.OptionsPages
     public string UserPrivateKeyPassword { get; set; } = "";
 
     [Category(Credentials)]
+    [DisplayName("SSH Certificate File (optional)")]
+    [Description("OpenSSH certificate signed by a CA. Leave blank to use '<private key>-cert.pub' when it exists.")]
+    public string UserCertificatePath { get; set; } = "";
+
+    [Category(Credentials)]
     [DisplayName("Use SSH.exe with integrated user/[..]/.ssh/id_rsa instead of PLINK")]
     [Description("Use SSH.exe with integrated user/[..]/.ssh/id_rsa instead of PLINK")]
     public bool UseSSHExeEnabled { get; set; } = true;

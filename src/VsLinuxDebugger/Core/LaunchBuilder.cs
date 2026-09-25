@@ -172,16 +172,21 @@ namespace VsLinuxDebugger.Core
 
       if(_opts.UseSSHExeEnabled)
       {
-        sshPassword = ""; //nothing to do, we assume that c:\users\[user]\.ssh\id_rsa exists
+        // ssh.exe picks up "<keyfile>-cert.pub" on its own; without a key it falls back to ~/.ssh/id_rsa.
+        if (_opts.UserPrivateKeyEnabled && !string.IsNullOrEmpty(_opts.UserPrivateKeyPath))
+        {
+          sshPassword = $"-i \"{_opts.UserPrivateKeyPath}\"";
+          if (!string.IsNullOrEmpty(_opts.UserCertificatePath))
+            sshPassword += $" -o CertificateFile=\"{_opts.UserCertificatePath}\"";
+        }
       }
       else
       {
         sshPassword = $"-pw {RemoteUserPass}";
-      }
 
-      // TODO: Figure out why "-i <keyfile>" isn't working.
-      if (string.IsNullOrEmpty(RemoteUserPass))
-        Logger.Output("You must provide a User Password to debug.");
+        if (string.IsNullOrEmpty(RemoteUserPass))
+          Logger.Output("You must provide a User Password to debug.");
+      }
 
       string adapter = plinkPath;
       string adapterArgs = "";
