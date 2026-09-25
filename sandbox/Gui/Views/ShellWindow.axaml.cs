@@ -2,11 +2,11 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace GuiNet6.Views;
+namespace Gui.Views;
 
-public partial class SidebarView : UserControl
+public partial class ShellWindow : Window
 {
-  public SidebarView()
+  public ShellWindow()
   {
     InitializeComponent();
   }

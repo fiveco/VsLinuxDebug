@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Avalonia;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 
-namespace GuiNet6;
+namespace Gui;
 
 internal class Program
 {
@@ -17,11 +17,10 @@ internal class Program
     })
     .With(new Win32PlatformOptions
     {
-      EnableMultitouch = true,
-      AllowEglInitialization = true,
+      RenderingMode = [Win32RenderingMode.AngleEgl, Win32RenderingMode.Software],
     })
     .UseSkia()
-    .UseReactiveUI()
+    .UseReactiveUI(rxui => { })
     .LogToTrace();
 
   // Initialization code. Don't use any Avalonia, third-party APIs or any
