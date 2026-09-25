@@ -128,7 +128,7 @@ namespace VsLinuxDebugger
 
       await Task.Yield();
 
-      Instance._package.ShowOptionPage(typeof(OptionsPage));
+      Instance._package.ShowOptionPage(typeof(RemoteHostOptionsPage));
     }
 
     private void SetMenuTextAndVisibility(object sender, EventArgs e)
@@ -158,34 +158,35 @@ namespace VsLinuxDebugger
 
     private UserOptions ToUserOptions()
     {
-      DebuggerPackage VsixPackage = _package as DebuggerPackage;
+      var package = _package as DebuggerPackage;
+      var host = package.RemoteHostOptions;
+      var credentials = package.RemoteCredentialsOptions;
+      var debugger = package.RemoteDebuggerOptions;
+      var local = package.LocalOptions;
 
       return new UserOptions
       {
-        DeleteLaunchJsonAfterBuild = VsixPackage.VsixOptions.DeleteLaunchJsonAfterBuild,
+        DeleteLaunchJsonAfterBuild = local.DeleteLaunchJsonAfterBuild,
 
-        HostIp = VsixPackage.VsixOptions.HostIp,
-        HostPort = VsixPackage.VsixOptions.HostPort,
+        HostIp = host.HostIp,
+        HostPort = host.HostPort,
 
-        LocalPLinkPath = VsixPackage.VsixOptions.PLinkPath,
-        LocalSwitchLinuxDbgOutput = VsixPackage.VsixOptions.SwitchLinuxDbgOutput,
+        LocalPLinkPath = local.PLinkPath,
+        LocalSwitchLinuxDbgOutput = local.SwitchLinuxDbgOutput,
 
-        RemoteDebugDisplayGui = VsixPackage.VsixOptions.RemoteDebugDisplayGui,
-        RemoteDebugDisplayNumber = VsixPackage.VsixOptions.RemoteDebugDisplayNumber,
-        RemoteDeployBasePath = VsixPackage.VsixOptions.RemoteDeployBasePath,
-        RemoteDotNetPath = VsixPackage.VsixOptions.RemoteDotNetPath,
-        RemoteVsDbgBasePath = VsixPackage.VsixOptions.RemoteVsDbgRootPath,
+        RemoteDebugDisplayGui = debugger.RemoteDebugDisplayGui,
+        RemoteDebugDisplayNumber = debugger.RemoteDebugDisplayNumber,
+        RemoteDeployBasePath = debugger.RemoteDeployBasePath,
+        RemoteDotNetPath = debugger.RemoteDotNetPath,
+        RemoteVsDbgBasePath = debugger.RemoteVsDbgRootPath,
 
-        UseCommandLineArgs = VsixPackage.VsixOptions.UseCommandLineArgs,
-        //// UsePublish = Settings.UsePublish,
-
-        UserPrivateKeyEnabled = VsixPackage.VsixOptions.UserPrivateKeyEnabled,
-        UserPrivateKeyPath = VsixPackage.VsixOptions.UserPrivateKeyPath,
-        UserPrivateKeyPassword = VsixPackage.VsixOptions.UserPrivateKeyPassword,
-        UserName = VsixPackage.VsixOptions.UserName,
-        UserPass = VsixPackage.VsixOptions.UserPass,
-        UserGroupName = VsixPackage.VsixOptions.UserGroupName,
-        UseSSHExeEnabled = VsixPackage.VsixOptions.UseSSHExeEnabled
+        UserPrivateKeyEnabled = credentials.UserPrivateKeyEnabled,
+        UserPrivateKeyPath = credentials.UserPrivateKeyPath,
+        UserPrivateKeyPassword = credentials.UserPrivateKeyPassword,
+        UserName = credentials.UserName,
+        UserPass = credentials.UserPass,
+        UserGroupName = host.UserGroupName,
+        UseSSHExeEnabled = local.UseSSHExeEnabled
       };
     }
   }
