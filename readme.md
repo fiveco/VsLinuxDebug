@@ -20,7 +20,7 @@ If you enjoy using the extension, please give it a ★★★★★ rating on the
 
 * **SSH CA certificate authentication** — supports a private key with an accompanying `<key>-cert.pub` certificate (auto-detected next to the key, or set explicitly), in addition to password and plain private-key auth.
 * **Sudo-elevated debugger launch** — an opt-in setting launches `vsdbg` via a configurable `sudo` command, for debuggees running with elevated or ambient capabilities that the debugger must match to attach.
-* **Deploys via `dotnet publish`** — always produces a real native executable (self-contained or framework-dependent, your choice), with the executable bit restored after transfer (lost by default over tar/scp from Windows).
+* **Deploys via `dotnet publish`** — always produces a real native executable (self-contained or framework-dependent, your choice), with the executable bit restored after transfer (lost by default over tar/scp from Windows). The publish uses the Solution Configuration Manager mapping (configuration and platform of each project) and builds each project once, with no separate Visual Studio build: compile errors appear in the Output pane, not in the Error List.
 * **Environment variables for the debuggee** — pass `KEY=VALUE` pairs through to the remote process, for programs that read required configuration from the environment.
 * **Configurable pre/post-deploy commands and attach-to-running-process** — run arbitrary shell commands before/after each deploy (i.e. stopping/restarting a systemd service), and optionally attach the debugger to that already-running process (via a configurable PID-lookup command) instead of launching a new one.
 * **Attach Only** — reattach to a running/deployed process without rebuilding or redeploying.

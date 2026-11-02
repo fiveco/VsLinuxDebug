@@ -8,6 +8,7 @@ using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using VsLinuxDebugger.Extensions;
+using DataReceivedEventHandler = System.Diagnostics.DataReceivedEventHandler;
 using Process = System.Diagnostics.Process;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
@@ -60,7 +61,8 @@ namespace VsLinuxDebugger.Core
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (buildOptions.HasFlag(BuildOptions.Build))
+        // Deploy builds each project once, inside `dotnet publish`; a VS build is only for Build alone.
+        if (buildOptions.HasFlag(BuildOptions.Build) && !buildOptions.HasFlag(BuildOptions.Deploy))
         {
           BuildBegin();
 
@@ -85,6 +87,9 @@ namespace VsLinuxDebugger.Core
 
         if (buildOptions.HasFlag(BuildOptions.Deploy))
         {
+          // The CLI does not save open documents.
+          _dte.Documents.SaveAll();
+
           if (!await PublishAsync(cancellationToken))
           {
             Logger.Output("Publish was not successful.");
@@ -235,7 +240,7 @@ namespace VsLinuxDebugger.Core
       ////BuildEvents.OnBuildProjConfigDone += BuildEvents_OnBuildProjConfigDone;
 
       _dte.SuppressUI = false;
-      _dte.Solution.SolutionBuild.BuildProject(_launchBuilder.ProjectConfigName, _launchBuilder.ProjectFileFullPath);
+      _dte.Solution.SolutionBuild.BuildProject(_launchBuilder.SolutionConfigName, _launchBuilder.ProjectFileFullPath);
     }
 
     private void CancelBuild()
@@ -282,12 +287,13 @@ namespace VsLinuxDebugger.Core
     }
 
     /// <summary>Runs `dotnet publish` for <see cref="UserOptions.RemoteRuntimeIdentifier"/> into
-    /// <see cref="LaunchBuilder.PublishDirFullPath"/>. Always publishing (rather than uploading a
-    /// plain build's output folder) is what makes the deployed executable match what a manual
-    /// `dotnet publish`/VS Publish produces: even framework-dependent, `dotnet publish -r <rid>`
-    /// generates a native apphost executable (no bare `.dll` launch needed), whereas a plain build
-    /// does not reliably produce one. It also sidesteps the SDK nesting RID-specific output under
-    /// an extra subfolder that this extension would otherwise have to keep guessing at.</summary>
+    /// <see cref="LaunchBuilder.PublishDirFullPath"/>, using the Configuration Manager mapping of
+    /// the active solution configuration for every project. Always publishing (rather than
+    /// uploading a plain build's output folder) is what makes the deployed executable match what a
+    /// manual `dotnet publish`/VS Publish produces: even framework-dependent, `dotnet publish -r
+    /// <rid>` generates a native apphost executable (no bare `.dll` launch needed), whereas a plain
+    /// build does not reliably produce one. It also sidesteps the SDK nesting RID-specific output
+    /// under an extra subfolder that this extension would otherwise have to keep guessing at.</summary>
     /// <returns>True if `dotnet publish` exited successfully.</returns>
     private async Task<bool> PublishAsync(CancellationToken cancellationToken)
     {
@@ -297,9 +303,14 @@ namespace VsLinuxDebugger.Core
       var selfContained = _options.UseSelfContainedDeployment ? "true" : "false";
       var args = $"publish \"{_launchBuilder.ProjectFileFullPath}\" " +
         $"-c \"{_launchBuilder.ProjectConfigName}\" " +
+        $"-p:Platform={LaunchBuilder.NormalizePlatform(_launchBuilder.ProjectPlatformName)} " +
         $"-r \"{_options.RemoteRuntimeIdentifier}\" " +
         $"--self-contained {selfContained} " +
         $"-o \"{_launchBuilder.PublishDirFullPath}\"";
+
+      Logger.Output($"Solution configuration: {_launchBuilder.SolutionConfigName}|{_launchBuilder.SolutionPlatformName}");
+      foreach (var e in _launchBuilder.ProjectConfigEntries)
+        Logger.Output($"- {e.AbsolutePath}: {e.ConfigName}|{LaunchBuilder.NormalizePlatform(e.PlatformName)} (build={e.ShouldBuild})");
 
       Logger.Output($"PUBLISH> dotnet {args}");
 
@@ -312,6 +323,14 @@ namespace VsLinuxDebugger.Core
         WorkingDirectory = Path.GetDirectoryName(_launchBuilder.ProjectFileFullPath),
       };
 
+      // Makes MSBuild use the solution's per-project mapping instead of propagating -c to references.
+      var env = startInfo.EnvironmentVariables;
+      env["CurrentSolutionConfigurationContents"] = _launchBuilder.SolutionConfigurationContents;
+      env["ShouldUnsetParentConfigurationAndPlatform"] = "true";
+      env["SolutionDir"] = _launchBuilder.SolutionDirPath.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+      env["SolutionPath"] = _launchBuilder.SolutionFileFullPath;
+      env["SolutionName"] = Path.GetFileNameWithoutExtension(_launchBuilder.SolutionFileFullPath);
+
       using (var process = new Process { StartInfo = startInfo })
       using (cancellationToken.Register(() =>
       {
@@ -323,20 +342,30 @@ namespace VsLinuxDebugger.Core
         catch { }
       }))
       {
-        process.Start();
+        // Logger needs the UI thread; marshal each line to it, tracked so they flush before returning.
+        var logTasks = ThreadHelper.JoinableTaskContext.CreateCollection();
+        var logFactory = ThreadHelper.JoinableTaskContext.CreateFactory(logTasks);
+        DataReceivedEventHandler onLine = (s, e) =>
+        {
+          if (string.IsNullOrWhiteSpace(e.Data))
+            return;
 
-        var stdOutTask = process.StandardOutput.ReadToEndAsync();
-        var stdErrTask = process.StandardError.ReadToEndAsync();
+          var line = e.Data;
+          logFactory.RunAsync(async () =>
+          {
+            await logFactory.SwitchToMainThreadAsync();
+            Logger.Output(line);
+          }).Task.FileAndForget("VsLinuxDebug/PublishLog");
+        };
+        process.OutputDataReceived += onLine;
+        process.ErrorDataReceived += onLine;
+
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
 
         await Task.Run(() => process.WaitForExit());
-
-        var stdOut = await stdOutTask;
-        var stdErr = await stdErrTask;
-
-        if (!string.IsNullOrWhiteSpace(stdOut))
-          Logger.Output(stdOut);
-        if (!string.IsNullOrWhiteSpace(stdErr))
-          Logger.Output(stdErr);
+        await logTasks.JoinTillEmptyAsync();
 
         cancellationToken.ThrowIfCancellationRequested();
 

@@ -4,7 +4,11 @@
 
 This document contains the release information for the project.
 
-### 3.0.0
+### 3.0.1 - 2026-11-02
+
+* Update: The publish uses the Solution Configuration Manager mapping of the active solution configuration (configuration and platform of each project) and builds each project once; there is no separate Visual Studio build anymore, so compile errors appear in the Output pane, not in the Error List.
+
+### 3.0.0 - 2026-09-09
 
 * Added: SSH CA certificate authentication (a private key with an accompanying `<key>-cert.pub` certificate, auto-detected or set explicitly), in addition to password and plain private-key auth.
 * Added: Sudo-elevated debugger launch, for debuggees running with elevated or ambient capabilities that the debugger must match to attach.
@@ -78,7 +82,7 @@ Contributor: [Claas Hilbrecht](https://github.com/clahil-linum) - PR: #59
 * Added: BashSudo (PR #36)
 * Update: Default VSDBG path to match Visual Studio 2022's deployed path (`~/.vs-debugger/vs2022/`). (PR #36, #47)
 * Update: Sample's NuGet package for Prism.Avalonia (#54)
-* Fixed: Typo, "Build was notsuccessful" (PR #43) `User Contribution` :rocket:
+* Fixed: Typo, "Build was notsuccessful" (PR #43) `User Contribution` 🚀
 * Fixed: Auto-install cURL (PR #36)
 * Fixed: Reduced duplicate output messages (PR #40)
 * Removed: Publish (PR #36)
